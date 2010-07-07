@@ -2,3 +2,10 @@ norbit multiplayer spaceship fridging cool thingy
 
 install to enjoy, well first code it then 
 
+
+--- 
+when generating models with blender
+be sure to generate the wavefront .OBJ files
+with following options selected:
+*Triangulate 
+*Normals
