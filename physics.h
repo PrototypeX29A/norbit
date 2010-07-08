@@ -71,7 +71,7 @@ struct rigid_body
 class simulation_world
 {
 public:
-
+	
 	simulation_world( real WorldWidth, real WorldHeight );
 
 	void Simulate( real DeltaTime );
