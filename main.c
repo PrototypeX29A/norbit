@@ -110,7 +110,7 @@ int main(int argc, char **argv)
 
 
 /* ----- Init scene --------------- */
-	if((object = InitObject("ptr_mk1.obj")) == NULL){
+	if((object = InitObject("ptr_mk1.obj")) == (Object*)NULL){
 		printf("Cannot load the object!\n");
 		return -1;
 	}
