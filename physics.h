@@ -79,6 +79,39 @@ public:
 	
 	~simulation_world( void );
 
+
+/*----------------------------------------------------------------------------
+
+various forces you can add to the system
+
+@todo need to figure out units here so these numbers mean something
+
+*/
+
+int WorldSpringActive;		// spring goes from body 0: vertex 0 to origin
+
+vector_2 WorldSpringAnchor;
+static real const Kws = 30.0f;			// Hooke's spring constant
+static real const Kwd = 5.0f;	
+
+int BodySpringActive;		// spring goes from body 0 to body 1
+static real const Kbs = 10.0f;			// Hooke's spring constant
+static real const Kbd = 5.0f;			// damping constant
+int Body0SpringVertexIndex;
+int Body1SpringVertexIndex;
+
+int GravityActive ;
+vector_2 Gravity;
+
+int DampingActive;
+static real const Kdl = 2.50f;		// linear damping factor
+static real const Kda = 1400.0f;		// angular damping factor
+
+
+
+
+
+
 private:
 
 	enum collision_state

@@ -27,106 +27,18 @@ physics.cpp - This file implements the 2D physics simulator.
 */
 
 #include <assert.h>
-
+#include <stdio.h>
 #include "physics.h"
 
+ real const simulation_world::Kws;			// Hooke's spring constant
+ real const simulation_world::Kwd;			// damping constant
+ real const simulation_world::Kbs;			// Hooke's spring constant
+ real const simulation_world::Kbd ;			// damping constant
+ real const simulation_world::Kdl;		// linear damping factor
+ real const simulation_world::Kda;		// angular damping factor
 
-/*----------------------------------------------------------------------------
 
-Globals
-
-*/
-
-// weird CodeWarrior bug with global initialization forces me to do this
-#define WIDTH 400
-#define HEIGHT 400
-
-int WorldWidth = WIDTH;
-int WorldHeight = HEIGHT;
-
-simulation_world World(r(WIDTH),r(HEIGHT));
-
-float GetTime() { return 0.0f; } 
-void Line(int x,int y, int xx, int yy){ return; }
-
-/*----------------------------------------------------------------------------
-
-various forces you can add to the system
-
-@todo need to figure out units here so these numbers mean something
-
-*/
-
-int WorldSpringActive = 0;		// spring goes from body 0: vertex 0 to origin
-real const Kws = r(30);			// Hooke's spring constant
-real const Kwd = r(5);			// damping constant
-vector_2 WorldSpringAnchor(r(0),r(0));
-
-int BodySpringActive = 0;		// spring goes from body 0 to body 1
-real const Kbs = r(10);			// Hooke's spring constant
-real const Kbd = r(5);			// damping constant
-int Body0SpringVertexIndex = 2;
-int Body1SpringVertexIndex = 0;
-
-int GravityActive = 0;
-vector_2 Gravity(r(0),r(-100));
-
-int DampingActive = 0;
-real const Kdl = r(2.5);		// linear damping factor
-real const Kda = r(1400);		// angular damping factor
-
-/*----------------------------------------------------------------------------
-
-Run
-
-*/
-
-void Run( void )
-{
-	static real LastTime = GetTime();
-
-	// use a fixed timestep until we implement a better integrator
-	// real Time = GetTime();
-	real Time = LastTime + r(0.02);
-
-	World.Simulate(Time - LastTime);
-
-	World.Render();
-
-	LastTime = Time;
-}
-
-/*----------------------------------------------------------------------------
-
-Toggles
-
-*/
-
-void ToggleWorldSpring( void )
-{
-	WorldSpringActive = WorldSpringActive ? 0 : 1;
-}
-
-void ToggleBodySpring( void )
-{
-	BodySpringActive = BodySpringActive ? 0 : 1;
-}
-
-void ToggleGravity( void )
-{
-	GravityActive = GravityActive ? 0 : 1;
-}
-
-void ToggleDamping( void )
-{
-	DampingActive = DampingActive ? 0 : 1;
-}
-
-/*----------------------------------------------------------------------------
-
-utilities
-
-*/
+//helper func
 
 void InitializeBody( rigid_body &Body, real Density, real Width, real Height,
 					real CoefficientOfRestitution )
@@ -151,6 +63,8 @@ void InitializeBody( rigid_body &Body, real Density, real Width, real Height,
 	Body.aConfigurations[0].Torque = r(0);
 }
 
+
+
 /*----------------------------------------------------------------------------
 
 simulation_world ctor
@@ -161,6 +75,29 @@ simulation_world::simulation_world( real WorldWidth_, real WorldHeight_ ) :
 	WorldWidth(WorldWidth_), WorldHeight(WorldHeight_),
 	SourceConfigurationIndex(0), TargetConfigurationIndex(1)
 {
+
+
+//initialize some superfluous parameters
+WorldSpringActive = 0;		// spring goes from body 0: vertex 0 to origin
+WorldSpringAnchor.X = 0.0f;
+WorldSpringAnchor.Y = 0.0f;
+
+BodySpringActive = 0;		// spring goes from body 0 to body 1
+Body0SpringVertexIndex = 2;
+Body1SpringVertexIndex = 0;
+
+GravityActive = 0;
+Gravity.X = 0.0f;
+Gravity.Y = 100.0f;
+
+DampingActive = 0;
+
+
+
+
+
+
+
 	// initialize bodies
 	real const Density = r(0.01);
 	InitializeBody(aBodies[0],Density,r(40),r(20),r(1));
@@ -276,8 +213,9 @@ void simulation_world::Render( void )
 	{
 		wall &Wall = aWalls[Counter];
 
-		Line(Wall.StartPoint.X,Wall.StartPoint.Y,
-			Wall.EndPoint.X,Wall.EndPoint.Y);
+	//	Line(Wall.StartPoint.X,Wall.StartPoint.Y,
+	//		Wall.EndPoint.X,Wall.EndPoint.Y);
+
 	}
 
 	// draw bodies
@@ -293,8 +231,10 @@ void simulation_world::Render( void )
 			int Start = Edge;
 			int End = (Edge + 1) % 4;
 
-			Line(Box.aVertices[Start].X,Box.aVertices[Start].Y,
-				Box.aVertices[End].X,Box.aVertices[End].Y);
+		//	Line(Box.aVertices[Start].X,Box.aVertices[Start].Y,
+		//		Box.aVertices[End].X,Box.aVertices[End].Y);
+		printf("body %d: edge %d: %0.4f %0.4f %0.4f %0.4f\n", Counter, Edge,Box.aVertices[Start].X,Box.aVertices[Start].Y,
+				Box.aVertices[End].X,Box.aVertices[End].Y); 
 		}
 	}
 
@@ -305,8 +245,8 @@ void simulation_world::Render( void )
 		rigid_body::configuration::bounding_box &Box =
 			aBodies[0].aConfigurations[SourceConfigurationIndex].BoundingBox;
 
-		Line(Box.aVertices[0].X,Box.aVertices[0].Y,
-			WorldSpringAnchor.X,WorldSpringAnchor.Y);
+		// Line(Box.aVertices[0].X,Box.aVertices[0].Y,
+		//	WorldSpringAnchor.X,WorldSpringAnchor.Y);
 	}
 
 	if(BodySpringActive)
@@ -319,27 +259,27 @@ void simulation_world::Render( void )
 		assert(NumberOfBodies >= 2);
 		vector_2 P0 = Box0.aVertices[Body0SpringVertexIndex];
 		vector_2 P1 = Box1.aVertices[Body1SpringVertexIndex];
-		Line(P0.X,P0.Y,P1.X,P1.Y);
+		// Line(P0.X,P0.Y,P1.X,P1.Y);
 	}
 
 	// draw gravity vector
 
 	if(GravityActive)
 	{
-		Line(0,0,0,-30);
-		Line(0,-30,5,-25);
-		Line(0,-30,-5,-25);
+		// Line(0,0,0,-30);
+		// Line(0,-30,5,-25);
+		// Line(0,-30,-5,-25);
 	}
 
 	// draw damping symbol
 
 	if(DampingActive)
 	{
-		Line(-5,0,5,0);
-		Line(0,-5,0,5);
+		// Line(-5,0,5,0);
+		// Line(0,-5,0,5);
 	}
 }
-#pragma warning(default:4244)		// float -> int
+
 
 /*----------------------------------------------------------------------------
 
