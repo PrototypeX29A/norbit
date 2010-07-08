@@ -1,9 +1,9 @@
-CC = gcc
-LD = gcc
+CC = g++
+LD = g++
 CFLAGS = `sdl-config --cflags`
 LDFLAGS = `sdl-config --libs` -lSDL_image -lGL
 RM   = /bin/rm -f
-OBJS = main.o object.o extra.o shadow.o
+OBJS = main.o object.o extra.o shadow.o 
 
 .PHONY: clean
 all: norbit test_obj
@@ -21,5 +21,7 @@ shadow.o: shadow.c shadow.h
 	$(CC) $(CFLAGS) -c shadow.c
 test_obj.o: test_obj.c object.h
 	$(CC) $(CFLAGS) -c test_obj.c
+physics.o: physics.cpp physics.h math2d.h
+	$(C++) $(CFLAGS) -c physics.cpp
 clean:
-	$(RM) *~ $(OBJS) norbit test_obj test_obj.o
+	$(RM) *~ $(OBJS) norbit test_obj test_obj.o 

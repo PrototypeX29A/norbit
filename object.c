@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <SDL/SDL.h>
+#include <SDL/SDL_image.h>
 #include <GL/gl.h>
 #include "object.h"
 
@@ -76,7 +77,7 @@ Object *LoadObject(char *objfile)
 	
 /* ----- Object initialization ----- */
 	/* Name */
-	obj->Name = malloc(sizeof(char) * strlen(namebuf));
+	obj->Name = (char*) malloc(sizeof(char) * strlen(namebuf));
 	strncpy(obj->Name, namebuf, strlen(namebuf));
 	(obj->Name)[strlen(namebuf)] = '\0'; /* Terminating the string, '\n' becomes '\0' */
 	/* Texture */
@@ -84,7 +85,7 @@ Object *LoadObject(char *objfile)
 	/* nFaces */
 	obj->nFaces = nf;
 	/* Faces */
-	obj->Faces = malloc(sizeof(Face) * nf);
+	obj->Faces = (Face*)malloc(sizeof(Face) * nf);
 	/* nVertices */
 	obj->nVertices = nv;
 	/* Vertices */
@@ -189,7 +190,7 @@ GLuint LoadTexture(char *tex_name)
 	SDL_Surface *tex_img;
 	glGenTextures(1, &tex_num);
 
-	if(tex_img = (SDL_Surface *) IMG_Load(tex_name)) {
+	if(tex_img = (SDL_Surface *) ::IMG_Load(tex_name)) {
         glBindTexture(GL_TEXTURE_2D, tex_num);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
