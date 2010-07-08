@@ -110,7 +110,7 @@ int main(int argc, char **argv)
 
 
 /* ----- Init scene --------------- */
-	if((object = InitObject("cube.obj")) == NULL){
+	if((object = InitObject("suzanne.obj")) == NULL){
 		printf("Cannot load the object!\n");
 		return -1;
 	}

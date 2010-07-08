@@ -201,7 +201,7 @@ GLuint LoadTexture(char *tex_name)
     }
 	else
 		printf("Texture not found!\n");
-
+	printf("Texture loaded %s!\n", tex_name);
 	return tex_num;
 }
 
