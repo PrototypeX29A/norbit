@@ -27,8 +27,12 @@
 #include "object.h"
 #include "shadow.h"
 #include "game_object.h"
+#include "physics.h"
 
 using namespace std;
+
+
+
 
 int main(int argc, char **argv)
 {
@@ -126,12 +130,26 @@ int main(int argc, char **argv)
 	printf("Number of Faces: %d\n", object->nFaces);
 	printf("Number of Vertices: %d\n", object->nVertices);
 	printf("\n");
+
+
+	simulation_world world;
+	game_object::set_simulation_world(&world);
+
+	real const Density = r(1.0);
+
 	game_object* ship1 = new game_object();
+	rigid_body * r = world.add_body( Density,40.0f,20.0f);
 	ship1->set_object(object);
-	ship1->set_position(0.0f, 1.0f, 0.0f);
+	ship1->set_rigid_body(r);
+
+
 	game_object* ship2 = new game_object();
+	r = world.add_body( Density,20.0f,10.0f);
 	ship2->set_object(object);
-	ship2->set_position(0.0f, 1.8f, -0.7f);
+	ship2->set_rigid_body(r);
+
+	//world.aBodies.at(0)->aConfigurations[0].CMVelocity = vector_2(r(0.40),r(0.10));
+	//world.aBodies.at(2)->aConfigurations[0].AngularVelocity = r(PI);
 	
 
 /* ----- Event cycle --------------- */
@@ -177,7 +195,17 @@ int main(int argc, char **argv)
 			}
 		}
 
+
+		
 		interval = FrameTiming();
+
+/* ----- simulation time ticks ----*/
+
+		static real LastTime = SDL_GetTicks() / 1000;
+		real Time = LastTime + 0.02f;
+		printf("time  %0.4f %0.4f\n", Time, LastTime);
+		world.Simulate(Time - LastTime);
+		LastTime = Time;
 
 
 /* ----- Blitting on the screen --------------- */

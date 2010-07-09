@@ -75,26 +75,23 @@ simulation_world ctor
 
 */
 
-simulation_world::simulation_world( real WorldWidth_, real WorldHeight_ ) :
-	WorldWidth(WorldWidth_), WorldHeight(WorldHeight_),
+simulation_world::simulation_world( ) :
 	SourceConfigurationIndex(0), TargetConfigurationIndex(1)
 {
 	//initialize some superfluous parameters
-	WorldSpringActive =0;		// spring goes from body 0: vertex 0 to origin
+	WorldSpringActive =1;		// spring goes from body 0: vertex 0 to origin
 	WorldSpringAnchor.X = 0.0f;
 	WorldSpringAnchor.Y = 0.0f;
 
-	BodySpringActive = 1;		// spring goes from body 0 to body 1
+	BodySpringActive = 0;		// spring goes from body 0 to body 1
 	Body0SpringVertexIndex = 2;
 	Body1SpringVertexIndex = 0;
 
-	GravityActive = 1;
+	GravityActive = 0;
 	Gravity.X = 0.0f;
 	Gravity.Y = 100.0f;
 
-	DampingActive = 0;
-
-	
+	DampingActive = 0;	
 }
 
 /*----------------------------------------------------------------------------
@@ -192,13 +189,11 @@ void simulation_world::Simulate( real DeltaTime )
 		printf("before calcverts:\n");	
 	        Render();
 
-for(std::vector<rigid_body*>::iterator it = aBodies.begin(); it!=aBodies.end(); ++it)
-	{
-		(*it)->CalculateVertices(TargetConfigurationIndex);
-}
+		for(std::vector<rigid_body*>::iterator it = aBodies.begin(); it!=aBodies.end(); ++it)
+		{
+			(*it)->CalculateVertices(TargetConfigurationIndex);
+		}
 	
-
-
 		// we made a successful step, so swap configurations
 		// to "save" the data for the next step
 
@@ -327,8 +322,6 @@ CalculateVertices - figure out the body vertices from the configuration
 
 void rigid_body::CalculateVertices( int ConfigurationIndex )
 {
-
-
 		matrix_2x2 const Rotation(
 			this->aConfigurations[ConfigurationIndex].
 				Orientation);

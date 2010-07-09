@@ -4,13 +4,7 @@
 #include "physics.h"
 
 
-#define WIDTH 400
-#define HEIGHT 400
-
-const int WorldWidth = WIDTH;
-const int WorldHeight = HEIGHT;
-
-simulation_world World(r(WIDTH),r(HEIGHT));
+simulation_world World;
 
 float GetTime() { static float t = 0.0f ;   printf("%0.4f ",t); return t++; } 
 
