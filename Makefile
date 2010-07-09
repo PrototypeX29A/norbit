@@ -1,6 +1,6 @@
 CC = g++
 LD = g++
-CFLAGS = `sdl-config --cflags` -g -Wall 
+CFLAGS = `sdl-config --cflags` -g  
 LDFLAGS = `sdl-config --libs` -lSDL_image -lGL
 RM   = /bin/rm -f
 OBJS = main.o object.o extra.o shadow.o game_object.o physics.o
@@ -28,7 +28,7 @@ test_physics.o: test_physics.cpp physics.h
 	$(CC) $(CFLAGS) -c test_physics.cpp
 physics.o: physics.cpp physics.h math2d.h
 	$(CC) $(CFLAGS) -c physics.cpp
-game_object.o: game_object.cpp physics.h math2d.h shadow.h object.h 
+game_object.o: game_object.cpp game_object.h physics.h math2d.h shadow.h object.h
 	$(CC) $(CFLAGS) -c game_object.cpp
 clean:
 	$(RM) *~ $(OBJS) norbit test_obj test_obj.o test_physics test_physics.o

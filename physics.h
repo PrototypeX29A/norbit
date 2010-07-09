@@ -68,13 +68,20 @@ struct rigid_body
 	} aConfigurations[NumberOfConfigurations];
 
 	void CalculateVertices( int ConfigurationIndex );
+
+	
+
+
 };
 
 class simulation_world
 {
 public:
-	
-	simulation_world( real WorldWidth, real WorldHeight );
+
+	int SourceConfigurationIndex;
+	int TargetConfigurationIndex;
+
+	simulation_world( );
 
 	void Simulate( real DeltaTime );
 	void Render( void );
@@ -91,11 +98,11 @@ public:
 	int WorldSpringActive;		// spring goes from body 0: vertex 0 to origin
 
 	vector_2 WorldSpringAnchor;
-	static real const Kws = 30.0f;			// Hooke's spring constant
+	static real const Kws = 3.0f;			// Hooke's spring constant
 	static real const Kwd = 5.0f;	
 
 	int BodySpringActive;		// spring goes from body 0 to body 1
-	static real const Kbs = 10.0f;			// Hooke's spring constant
+	static real const Kbs = 1.0f;			// Hooke's spring constant
 	static real const Kbd = 5.0f;			// damping constant
 	int Body0SpringVertexIndex;
 	int Body1SpringVertexIndex;
@@ -105,7 +112,7 @@ public:
 
 	int DampingActive;
 	static real const Kdl = 2.50f;		// linear damping factor
-	static real const Kda = 1400.0f;		// angular damping factor
+	static real const Kda = 140.0f;		// angular damping factor
 
 	std::vector<rigid_body*> aBodies;
 	int NumberOfBodies() { return aBodies.size(); }
@@ -123,14 +130,10 @@ private:
 	int CollidingBodyIndex;
 	int CollidingCornerIndex;
 
-	int SourceConfigurationIndex;
-	int TargetConfigurationIndex;
 
 	void ComputeForces( int ConfigurationIndex );
 	void Integrate( real DeltaTime );
 
-
-	real WorldWidth, WorldHeight;
 
 };
 

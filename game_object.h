@@ -29,13 +29,21 @@ class game_object
 public:
 	void draw();
 	void set_shape(shape *shape);
+	void set_rigid_body(rigid_body*);
 	void set_position(float x, float y, float z);
 	void DrawObject(Object *object);
 	
+	static void set_simulation_world(simulation_world *w);
+
+
 private:
 	shape *object_shape;
+	static simulation_world * world;
 	rigid_body *body;
-	float posx, posy, posz;
+	//float posx, posy, posz;
+	float posx();
+	float posy();
+	float posz();
 };
 
 
