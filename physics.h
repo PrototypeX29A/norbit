@@ -88,11 +88,11 @@ public:
 	// World Spring		
 	vector_2 WorldSpringAnchor;
 	static real const Kws = 3.0f;			// Hooke's spring constant
-	static real const Kwd = 5.0f;	
+	static real const Kwd = 0.5f;	
 
 	//BodySpring
 	static real const Kbs = 1.0f;			// Hooke's spring constant
-	static real const Kbd = 1.1f;			// damping constant
+	static real const Kbd = 0.5f;			// damping constant
 	
 
 	// Damping

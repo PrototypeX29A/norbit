@@ -161,13 +161,15 @@ void simulation_world::ComputeForces( int ConfigurationIndex )
 	{
 		rigid_body *Body0 = aBodies.at(0);
 		rigid_body::configuration &Configuration0 = Body0->aConfigurations[ConfigurationIndex];
-		vector_2 Position0 = Configuration0.CMPosition + Configuration0.Orientation * vector_2( 10.0, 10.0);
+ 		matrix_2x2 const Rotation0(Configuration0.Orientation);
+		vector_2 Position0 = Configuration0.CMPosition + Rotation0 * vector_2( 10.0, 10.0);
 		vector_2 U0 = Position0 - Configuration0.CMPosition;
 		vector_2 VU0 = Configuration0.CMVelocity + Configuration0.AngularVelocity * GetPerpendicular(U0);
 
 		rigid_body *Body1 = aBodies.at(1);
 		rigid_body::configuration &Configuration1 = Body1->aConfigurations[ConfigurationIndex];
-		vector_2 Position1 = Configuration1.CMPosition + Configuration1.Orientation  * vector_2( 10.0, 10.0);
+ 		matrix_2x2 const Rotation1(Configuration1.Orientation);
+		vector_2 Position1 = Configuration1.CMPosition + Rotation1  * vector_2( 10.0, 10.0);
 		vector_2 U1 = Position1 - Configuration1.CMPosition;
 		vector_2 VU1 = Configuration1.CMVelocity + Configuration1.AngularVelocity * GetPerpendicular(U1);
 

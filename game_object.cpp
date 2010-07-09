@@ -64,9 +64,7 @@ void game_object::set_rigid_body(rigid_body * b){
 	body = b;
 }
 
-shape::shape()
-{
-}
+
 
 shape::~shape()
 {
