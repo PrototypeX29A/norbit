@@ -1,11 +1,18 @@
+#include <string>
+
+
 #include "physics.h"
+
+using namespace std;
 
 class shape
 {
 public:
+	~shape();
+	shape(string *name);	
 	void draw();
 	void set_object(Object *object);
-	
+		
 private:
 	Object *object;
 	GLuint TexId;

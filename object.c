@@ -18,18 +18,19 @@ Object *LoadObject(char *objfile)
 {
 	FILE *fd;
 	Object *obj;
-	char buf[128];
+	char buf[128]  = "";
 	
-	char namebuf[128];
+	char namebuf[128] = "";
 	int nv, nt, nn, nf;
-	char texbuf[128];
-	char matfile[128];
-	char material[128], mat[128];
+	char texbuf[128] = "";
+	char matfile[128] = "";
+	char material[128] = "";
+	char mat[128] = "";
 	Point *vertices, *texcoords, *normals;
 	int fv[3], ft[3], fn[3];
 	int i;
 	int mat_flag = 0;
-	
+
 	
 /* ----- Processing the .obj file ----- */
 	fd = fopen(objfile, "r");
@@ -202,7 +203,7 @@ GLuint LoadTexture(char *tex_name)
     }
 	else
 		printf("Texture not found!\n");
-	printf("Texture loaded %s!\n", tex_name);
+	//printf("Texture loaded %s!\n", tex_name);
 	return tex_num;
 }
 

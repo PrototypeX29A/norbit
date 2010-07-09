@@ -18,6 +18,7 @@
 
 #include <iostream>
 #include <list>
+#include <string>
 
 #include <stdlib.h>
 #include <math.h>
@@ -30,21 +31,19 @@
 
 using namespace std;
 
+void init_sdl(SDL_Surface **screen, int bpp, int flags, int width, int height);
+
 int main(int argc, char **argv)
 {
 	SDL_Surface *screen;
 	SDL_Event event;
 	int quit = 0;
-
-	const SDL_VideoInfo* info = NULL;
-	int width = 640;
-	int height = 480;
 	int bpp = 0;
 	int flags = 0;
-	GLint stencil = 0;
-
+	int width = 640;
+	int height = 480;
+	
 	Uint32 interval;
-	Object *object;
 	Light light1 = {{ 0.0f, 1.5f,-1.5f, 1.0f}, { 0.7f, 0.7f, 0.7f, 1.0f},
                    { 0.7f, 0.7f, 0.7f, 1.0f}, { 1.0f, 1.0f, 1.0f, 1.0f}};
 	Light light2 = {{-1.5f,-1.8f, 0.0f, 1.0f}, { 0.4f, 0.4f, 0.4f, 1.0f},
@@ -54,46 +53,11 @@ int main(int argc, char **argv)
 
 	GLfloat rot = 0;
 	GLfloat angle = 0;
-	GLfloat Minv[16];
 	
 
-/* ----- SDL init --------------- */
-	if(SDL_Init(SDL_INIT_VIDEO) < 0) {
-		fprintf(stderr, "Video initialization failed: %s\n", SDL_GetError());
-		exit(-1);
-	}
-
-	atexit(SDL_Quit);
-
-	info = SDL_GetVideoInfo();
-	bpp = info->vfmt->BitsPerPixel;
-
-
-/* ----- OpenGL attribute setting via SDL --------------- */
-	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 5);
-	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 5);
-	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 5);
-	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
-	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-
-/*	flags = SDL_OPENGL | SDL_FULLSCREEN; */
+//	flags = SDL_OPENGL | SDL_FULLSCREEN; 
 	flags = SDL_OPENGL | SDL_RESIZABLE;
-
-
-/* ----- Setting up the screen surface --------------- */
-	if((screen = SDL_SetVideoMode(width, height, bpp, flags)) == 0) {
-		fprintf(stderr, "Video mode set failed: %s\n", SDL_GetError());
-        	exit(-1);
-	}
-
-	glGetIntegerv(GL_STENCIL_BITS, &stencil);
-	if(stencil == 0){
-		printf("Stencil buffer not available!\n");
-		exit(-1);
-	}
-
-	SDL_WM_SetCaption("GL_shadow by Encelo", NULL);
-
+	init_sdl(&screen, bpp, flags, width, height);
 
 /* ----- OpenGL init --------------- */
 	glMatrixMode(GL_PROJECTION);
@@ -116,18 +80,7 @@ int main(int argc, char **argv)
 
 /* ----- Init scene --------------- */
 
-	if((object = InitObject("ptr_mk1.obj")) == (Object*)NULL) {
-
-		printf("Cannot load the object!\n");
-		return -1;
-	}
-	printf("Object loaded\n");
-	printf("Name: %s\n", object->Name);
-	printf("Number of Faces: %d\n", object->nFaces);
-	printf("Number of Vertices: %d\n", object->nVertices);
-	printf("\n");
-	shape* sh = new shape();
-	sh->set_object(object);
+	shape* sh = new shape(new string("ptr_mk1.obj"));
 	game_object* ship1 = new game_object();
 	ship1->set_shape(sh);
 	ship1->set_position(0.0f, 1.0f, 0.0f);
@@ -176,6 +129,8 @@ int main(int argc, char **argv)
 								break;
 						}
 					break;
+				default:
+					break;
 			}
 		}
 
@@ -216,7 +171,51 @@ int main(int argc, char **argv)
 
 
 /* ----- Quitting --------------- */
-	FreeObject(object);
+	
 	SDL_Quit();
 	return 0;	
+}
+
+void init_sdl(SDL_Surface **screen, int bpp, int flags, int width, int height)
+{
+	const SDL_VideoInfo* info = NULL;
+	
+	
+	GLint stencil = 0;
+
+
+	/* ----- SDL init --------------- */
+	if(SDL_Init(SDL_INIT_VIDEO) < 0) {
+		fprintf(stderr, "Video initialization failed: %s\n", SDL_GetError());
+		exit(-1);
+	}
+
+	atexit(SDL_Quit);
+
+	info = SDL_GetVideoInfo();
+	bpp = info->vfmt->BitsPerPixel;
+
+
+/* ----- OpenGL attribute setting via SDL --------------- */
+	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 5);
+	SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE, 5);
+	SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE, 5);
+	SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+	SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+
+
+/* ----- Setting up the screen surface --------------- */
+	if((*screen = SDL_SetVideoMode(width, height, bpp, flags)) == 0) {
+		fprintf(stderr, "Video mode set failed: %s\n", SDL_GetError());
+        	exit(-1);
+	}
+
+	glGetIntegerv(GL_STENCIL_BITS, &stencil);
+	if(stencil == 0){
+		printf("Stencil buffer not available!\n");
+		exit(-1);
+	}
+
+	SDL_WM_SetCaption("Norbit fridge in space simulator", NULL);
+
 }
