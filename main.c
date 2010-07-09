@@ -16,8 +16,9 @@
    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
+#include <iostream>
+#include <list>
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
 #include <SDL/SDL.h>
@@ -25,7 +26,9 @@
 #include "extra.h"
 #include "object.h"
 #include "shadow.h"
+#include "game_object.h"
 
+using namespace std;
 
 int main(int argc, char **argv)
 {
@@ -46,11 +49,13 @@ int main(int argc, char **argv)
                    { 0.7f, 0.7f, 0.7f, 1.0f}, { 1.0f, 1.0f, 1.0f, 1.0f}};
 	Light light2 = {{-1.5f,-1.8f, 0.0f, 1.0f}, { 0.4f, 0.4f, 0.4f, 1.0f},
                     { 0.4f, 0.4f, 0.4f, 1.0f}, { 1.0f, 1.0f, 1.0f, 1.0f}};
+	
+	
+
 	GLfloat rot = 0;
 	GLfloat angle = 0;
 	GLfloat Minv[16];
-	GLfloat lp1_o1[4], lp2_o1[4], lp1_o2[4], lp2_o2[4];
-
+	
 
 /* ----- SDL init --------------- */
 	if(SDL_Init(SDL_INIT_VIDEO) < 0) {
@@ -110,7 +115,8 @@ int main(int argc, char **argv)
 
 
 /* ----- Init scene --------------- */
-	if((object = InitObject("ptr_mk1.obj")) == (Object*)NULL){
+
+	if((object = InitObject("ptr_mk1.obj")) == (Object*)NULL) {
 
 		printf("Cannot load the object!\n");
 		return -1;
@@ -120,7 +126,13 @@ int main(int argc, char **argv)
 	printf("Number of Faces: %d\n", object->nFaces);
 	printf("Number of Vertices: %d\n", object->nVertices);
 	printf("\n");
-
+	game_object* ship1 = new game_object();
+	ship1->set_object(object);
+	ship1->set_position(0.0f, 1.0f, 0.0f);
+	game_object* ship2 = new game_object();
+	ship2->set_object(object);
+	ship2->set_position(0.0f, 1.8f, -0.7f);
+	
 
 /* ----- Event cycle --------------- */
 	while (!quit) {
@@ -187,63 +199,14 @@ int main(int argc, char **argv)
 		UpdateLight(&light1, GL_LIGHT1, 0.1f);
 		UpdateLight(&light2, GL_LIGHT2, 0.1f);
 
-
-/* ----- Storing light position relative to shadow casting objects -----*/
-		glPushMatrix();
-
-		/* Inverse transformation of the 1st object */
-		glLoadIdentity();
-		glScalef(5.0f, 5.0f, 5.0f);
-		glRotatef(rot, 0.0f, -1.0f, 0.0f);
-		glTranslatef(0.0f, 1.0f, 0.0f);
-		glGetFloatv(GL_MODELVIEW_MATRIX, Minv);
-		/* Light 1 */
-		CpVec(light1.Position, lp1_o1, 4);
- 		VMatMult(Minv, lp1_o1);
-		/* Light 2 */
-		CpVec(light2.Position, lp2_o1, 4);
-		VMatMult(Minv, lp2_o1);
-
-		/* Inverse transformation of the 2nd object */
-		glLoadIdentity();
-		glScalef(5.0f, 5.0f, 5.0f);
-		glTranslatef(0.0f, 1.8f, -0.7f);
-		glGetFloatv(GL_MODELVIEW_MATRIX, Minv);
-		/* Light 1 */
-		CpVec(light1.Position, lp1_o2 ,4);
-		VMatMult(Minv, lp1_o2);
-		/* Light 2 */
-		CpVec(light2.Position, lp2_o2 ,4);
-		VMatMult(Minv, lp2_o2);
-
-		glPopMatrix();
-
 /* ----- Objects ----- */
-		glPushMatrix();
+	/*	glPushMatrix();
 		glScalef(2.0f, 2.0f, 2.0f);	
 		DrawRoom();
-		glPopMatrix();
+		glPopMatrix();*/
 
-		/* Second Object */
-		glPushMatrix();
-		glTranslatef(0.0f, -1.8f, 0.7f);
-		glScalef(0.2f, 0.2f, 0.2f); 
-		DrawObject(object);
-		CastShadow(object, lp1_o2);
-		CastShadow(object, lp2_o2);
-		glPopMatrix();
-
-		/* First Object */
-		glPushMatrix();
-		glTranslatef(0.0f, -1.0f, 0.0f);
-		glRotatef(rot, 0.0f, 1.0f, 0.0f);
-		glScalef(0.2f, 0.2f, 0.2f); 
-		DrawObject(object);
-		CastShadow(object, lp1_o1);
-		CastShadow(object, lp2_o1);
-		glPopMatrix();
-
-		DrawShadow();
+		ship2->draw();
+		ship1->draw();
 
 		SDL_GL_SwapBuffers();
 /*		SDL_Delay(25); */ /* Decomment this if you want 1/50th screen update */

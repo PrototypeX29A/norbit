@@ -10,8 +10,6 @@ void game_object::draw()
 	glTranslatef(-posx,-posy,-posz);
 	glScalef(0.2f, 0.2f, 0.2f); 
 	DrawObject(object);
-//	CastShadow(object, lp1_o2);
-//	CastShadow(object, lp2_o2);
 	glPopMatrix();
 }
 
