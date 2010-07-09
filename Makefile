@@ -1,6 +1,6 @@
 CC = g++
 LD = g++
-CFLAGS = `sdl-config --cflags`
+CFLAGS = `sdl-config --cflags` -g -Wall 
 LDFLAGS = `sdl-config --libs` -lSDL_image -lGL
 RM   = /bin/rm -f
 OBJS = main.o object.o extra.o shadow.o game_object.o physics.o
