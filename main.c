@@ -115,11 +115,6 @@ int main(int argc, char **argv)
 	game_objects.push_front(ship2);
 	sship_controllers.push_front(control2);
 
-//	world->aBodies.at(0)->aConfigurations[0].CMVelocity = vector_2(0.10f,0.10f);
-//	world->aBodies.at(0)->aConfigurations[0].AngularVelocity = PI;
-
-
-
 /* ----- Event cycle --------------- */
 	int quit = 0;
 	while (!quit) {
@@ -154,12 +149,12 @@ int main(int argc, char **argv)
 				        fprintf(stderr, "Video resize failed: %s\n", SDL_GetError());
 			            exit(-1);
 				    }
-					glPushAttrib(GL_TRANSFORM_BIT);
+					{glPushAttrib(GL_TRANSFORM_BIT);
 					glMatrixMode(GL_PROJECTION);
 					glLoadIdentity();
-					perspectiveGL(45.0f, (GLfloat)event.resize.w/(GLfloat)event.resize.h, 0.001f, 100.0f);
+					perspectiveGL(90.0f, (GLfloat)event.resize.w/(GLfloat)event.resize.h, 0.1f, 10000.0f);
 					glViewport(0.0f, 0.0f, event.resize.w, event.resize.h);	
-					glPopAttrib();
+					glPopAttrib();}
 					break;
 				case SDL_ACTIVEEVENT:
 					if(event.active.state != SDL_APPMOUSEFOCUS && event.active.gain == 0)
@@ -206,6 +201,8 @@ int main(int argc, char **argv)
 		glLoadIdentity();
 		glTranslatef(0.0f, 0.0f, -7.5f); /* Negative Zoom */
 
+		vector_2 mid((ship1->posx() -ship2->posx())/2.0,(ship1->posy() -ship2->posy())/2.0);
+		glTranslatef(mid.X,mid.Y,-sqrt(mid.X*mid.X+mid.Y*mid.Y));
 
 /* ----- Light ----- */
 		light1.Position[0] = sinf(angle) * 1.5f;

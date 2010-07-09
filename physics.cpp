@@ -249,7 +249,7 @@ rigid_body::rigid_body():SourceConfigurationIndex(0), TargetConfigurationIndex(1
 void rigid_body::apply_force(vector_2 const & F, vector_2 const & Pl){
 	matrix_2x2 const Rotation( aConfigurations[SourceConfigurationIndex].Orientation);
 	aConfigurations[SourceConfigurationIndex].CMForce += Rotation*F;
-	aConfigurations[SourceConfigurationIndex].Torque += PerpDotProduct(Pl,Rotation*F) ;
+	aConfigurations[SourceConfigurationIndex].Torque += PerpDotProduct(Pl,F) ;
 
 	printf("applying total torque: %0.4f  F:  %0.4f  %0.4f \n", 
 		aConfigurations[SourceConfigurationIndex].Torque,
