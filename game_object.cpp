@@ -17,7 +17,9 @@ void game_object::draw()
 {
 	glPushMatrix();
 	glTranslatef(-posx()*0.2,-posy()*0.2,-posz()*0.2);
-	// TODO: Add Rotation	
+	glRotatef(-body->aConfigurations[world->SourceConfigurationIndex].Orientation*57.324840764f, 0.0f,0.0f,1.0f);
+		
+	glRotatef(90,1.0f,0.0f,0.0f);	
 	glScalef(0.2f, 0.2f, 0.2f); 
 	object_shape->draw();
 	glPopMatrix();
@@ -37,6 +39,7 @@ void game_object::set_position(float x, float y, float z)
 	assert(world);
 	body->aConfigurations[world->SourceConfigurationIndex].CMPosition = vector_2(r(x),r(y));
 }
+
 
 float game_object::posx(){
 	assert(world);
@@ -59,6 +62,10 @@ void game_object::set_rigid_body(rigid_body * b){
 	assert(world);
 	assert(b);
 	body = b;
+}
+
+shape::shape()
+{
 }
 
 shape::~shape()
