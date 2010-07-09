@@ -78,7 +78,7 @@ Object *LoadObject(char *objfile)
 	
 /* ----- Object initialization ----- */
 	/* Name */
-	obj->Name = (char*) malloc(sizeof(char) * strlen(namebuf));
+	obj->Name = (char*) malloc(sizeof(char) * strlen(namebuf)+1);   
 	strncpy(obj->Name, namebuf, strlen(namebuf));
 	(obj->Name)[strlen(namebuf)] = '\0'; /* Terminating the string, '\n' becomes '\0' */
 	/* Texture */

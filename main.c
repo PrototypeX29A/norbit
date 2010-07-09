@@ -33,12 +33,13 @@
 using namespace std;
 
 void init_sdl(SDL_Surface **screen, int bpp, int flags, int width, int height);
+void init_scene(list<game_object*> *go_list, simulation_world *world);
 
 int main(int argc, char **argv)
 {
 	SDL_Surface *screen;
 	SDL_Event event;
-	int quit = 0;
+	
 	int bpp = 0;
 	int flags = 0;
 	int width = 640;
@@ -51,8 +52,6 @@ int main(int argc, char **argv)
                     { 0.4f, 0.4f, 0.4f, 1.0f}, { 1.0f, 1.0f, 1.0f, 1.0f}};
 	
 	
-
-	GLfloat rot = 0;
 	GLfloat angle = 0;
 	
 
@@ -80,29 +79,12 @@ int main(int argc, char **argv)
 
 
 /* ----- Init scene --------------- */
-
-	simulation_world world;
-	game_object::set_simulation_world(&world);	
-	real const Density = r(1.0);
-	shape* sh = new shape(new string("ptr_mk1.obj"));
-
-	game_object* ship1 = new game_object();
-	rigid_body * r = world.add_body( Density,40.0f,20.0f);
-	ship1->set_rigid_body(r);
-	ship1->set_shape(sh);
-	ship1->set_position(0.0f, 1.0f, 0.0f);
-
-	game_object* ship2 = new game_object();
-	r = world.add_body( Density,20.0f,10.0f);
-	ship2->set_rigid_body(r);
-	ship2->set_shape(sh);
-	ship2->set_position(0.0f, 1.8f, -0.7f);
-	//world.aBodies.at(0)->aConfigurations[0].CMVelocity = vector_2(r(0.40),r(0.10));
-	//world.aBodies.at(2)->aConfigurations[0].AngularVelocity = r(PI);
-
-	
+	list<game_object*> *game_objects = new list<game_object*>();
+	simulation_world *world = new simulation_world();
+	init_scene(game_objects, world);
 
 /* ----- Event cycle --------------- */
+	int quit = 0;
 	while (!quit) {
 		while (SDL_PollEvent(&event)) {
 			switch (event.type) {
@@ -156,13 +138,12 @@ int main(int argc, char **argv)
 		static real LastTime = SDL_GetTicks() / 1000;
 		real Time = LastTime + 0.02f;
 		printf("time  %0.4f %0.4f\n", Time, LastTime);
-		world.Simulate(Time - LastTime);
+		world->Simulate(Time - LastTime);
 		LastTime = Time;
 
 
 /* ----- Blitting on the screen --------------- */
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-		rot += 0.1f * interval;
 		angle += 0.001f * interval;
 
 		glLoadIdentity();
@@ -184,10 +165,12 @@ int main(int argc, char **argv)
 		glScalef(2.0f, 2.0f, 2.0f);	
 		DrawRoom();
 		glPopMatrix();*/
-
-		ship2->draw();
-		ship1->draw();
-
+		
+		for(list<game_object*>::const_iterator it = game_objects->begin(); it != game_objects->end(); ++it)
+		{
+			(*it)->draw();
+		}
+	
 		SDL_GL_SwapBuffers();
 /*		SDL_Delay(25); */ /* Decomment this if you want 1/50th screen update */
 	}
@@ -197,6 +180,30 @@ int main(int argc, char **argv)
 	
 	SDL_Quit();
 	return 0;	
+}
+
+void init_scene(list<game_object*> *go_list, 	
+	simulation_world *world)
+{
+	game_object::set_simulation_world(world);	
+	real const Density = r(1.0);
+	shape* sh = new shape(new string("ptr_mk1.obj"));
+
+	game_object* ship1 = new game_object();
+	rigid_body * r = world->add_body( Density,40.0f,20.0f);
+	ship1->set_rigid_body(r);
+	ship1->set_shape(sh);
+	ship1->set_position(0.0f, 1.0f, 0.0f);
+	go_list->push_front(ship1);
+
+	game_object* ship2 = new game_object();
+	r = world->add_body( Density,20.0f,10.0f);
+	ship2->set_rigid_body(r);
+	ship2->set_shape(sh);
+	ship2->set_position(0.0f, 1.8f, -0.7f);
+	go_list->push_front(ship2);
+	//world->aBodies.at(0)->aConfigurations[0].CMVelocity = vector_2(r(0.40),r(0.10));
+	//world->aBodies.at(2)->aConfigurations[0].AngularVelocity = r(PI);
 }
 
 void init_sdl(SDL_Surface **screen, int bpp, int flags, int width, int height)
