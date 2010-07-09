@@ -25,8 +25,6 @@
 #include <SDL/SDL.h>
 #include <GL/gl.h>
 #include "extra.h"
-#include "object.h" // TODO: Remove
-#include "shadow.h"
 #include "game_object.h"
 #include "physics.h"
 
@@ -162,11 +160,6 @@ int main(int argc, char **argv)
 		UpdateLight(&light2, GL_LIGHT2, 0.1f);
 
 /* ----- Objects ----- */
-	/*	glPushMatrix();
-		glScalef(2.0f, 2.0f, 2.0f);	
-		DrawRoom();
-		glPopMatrix();*/
-		
 		for(list<game_object*>::const_iterator it = game_objects->begin(); it != game_objects->end(); ++it)
 		{
 			(*it)->draw();
