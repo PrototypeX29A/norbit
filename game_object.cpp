@@ -16,7 +16,7 @@ using namespace std;
 void game_object::draw()
 {
 	glPushMatrix();
-	glTranslatef(-posx()*0.2,-posy()*0.2,-posz()*0.2);
+	glTranslatef(-posx(),-posy(),-posz());
 	glRotatef(-body->aConfigurations[world->SourceConfigurationIndex].Orientation*57.324840764f, 0.0f,0.0f,1.0f);
 		
 	glRotatef(90,1.0f,0.0f,0.0f);	
@@ -63,7 +63,6 @@ void game_object::set_rigid_body(rigid_body * b){
 	assert(b);
 	body = b;
 }
-
 
 shape::shape()
 {

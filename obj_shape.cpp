@@ -13,7 +13,7 @@ obj_shape::~obj_shape()
 	free(Faces);
 }
 
-obj_shape::obj_shape(string *name) : shape()
+obj_shape::obj_shape(string *name) 
 {
 	char *cname = (char*) malloc(200);
 	strcpy (cname, name->c_str()); 

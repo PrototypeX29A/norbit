@@ -43,7 +43,6 @@ Declarations for physics code.
 
 struct rigid_body
 {
-	real Width, Height; // TODO: Remove
 	real OneOverMass, OneOverCMMomentOfInertia;
 
 	enum { NumberOfConfigurations = 2 };
@@ -59,17 +58,7 @@ struct rigid_body
 		vector_2 CMForce;
 		real Torque;
 
-		struct bounding_box
-		{
-			vector_2 aVertices[4];
-
-		} BoundingBox; // TODO: Remove
-
 	} aConfigurations[NumberOfConfigurations];
-
-	void CalculateVertices( int ConfigurationIndex );
-
-	
 
 
 };
@@ -85,7 +74,7 @@ public:
 
 	void Simulate( real DeltaTime );
 	void Render( void );
-	rigid_body* add_body( real Density, real Width, real Height);
+	rigid_body* add_body( real Mass );
 	
 	~simulation_world( void );
 
@@ -95,22 +84,18 @@ public:
 	@todo need to figure out units here so these numbers mean something
 	*/
 
-	int WorldSpringActive;		// spring goes from body 0: vertex 0 to origin
 
+	// World Spring		
 	vector_2 WorldSpringAnchor;
 	static real const Kws = 3.0f;			// Hooke's spring constant
-	static real const Kwd = 5.0f;	
+	static real const Kwd = 0.5f;	
 
-	int BodySpringActive;		// spring goes from body 0 to body 1
+	//BodySpring
 	static real const Kbs = 1.0f;			// Hooke's spring constant
-	static real const Kbd = 5.0f;			// damping constant
-	int Body0SpringVertexIndex;
-	int Body1SpringVertexIndex;
+	static real const Kbd = 0.5f;			// damping constant
+	
 
-	int GravityActive ;
-	vector_2 Gravity;
-
-	int DampingActive;
+	// Damping
 	static real const Kdl = 2.50f;		// linear damping factor
 	static real const Kda = 140.0f;		// angular damping factor
 

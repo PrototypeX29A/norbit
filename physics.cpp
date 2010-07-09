@@ -41,20 +41,17 @@ physics.cpp - This file implements the 2D physics simulator.
 
 //helper func
 
-rigid_body* simulation_world::add_body( real Density, real Width, real Height)
-{				
-	real const Mass = Density * Width * Height;
-
+rigid_body* simulation_world::add_body( real Mass )
+{	
 	rigid_body* B = new rigid_body();
 	rigid_body &Body = *B;
-	
-	Body.Width = Width;
-	Body.Height = Height;
 
 	Body.OneOverMass = r(1) / Mass;
 
 	// integrate over the body to find the moment of inertia
 
+	const float Width = 100.0;  // TODO: parametrize this instead of using const values
+	const float Height = 100.0;
 	Body.OneOverCMMomentOfInertia = r(1) / ((Mass / r(12)) *
 		(Width * Width + Height * Height));
 
@@ -62,7 +59,6 @@ rigid_body* simulation_world::add_body( real Density, real Width, real Height)
 	Body.aConfigurations[0].Orientation = r(0);
 	Body.aConfigurations[0].AngularVelocity = r(0);
 	Body.aConfigurations[0].Torque = r(0);
-	Body.CalculateVertices(0);
 	aBodies.push_back(B);
 	return B;
 }
@@ -78,20 +74,8 @@ simulation_world ctor
 simulation_world::simulation_world( ) :
 	SourceConfigurationIndex(0), TargetConfigurationIndex(1)
 {
-	//initialize some superfluous parameters
-	WorldSpringActive =1;		// spring goes from body 0: vertex 0 to origin
 	WorldSpringAnchor.X = 0.0f;
 	WorldSpringAnchor.Y = 0.0f;
-
-	BodySpringActive = 0;		// spring goes from body 0 to body 1
-	Body0SpringVertexIndex = 2;
-	Body1SpringVertexIndex = 0;
-
-	GravityActive = 0;
-	Gravity.X = 0.0f;
-	Gravity.Y = 100.0f;
-
-	DampingActive = 0;	
 }
 
 /*----------------------------------------------------------------------------
@@ -118,47 +102,13 @@ void simulation_world::Render( void )
 	int i = 0;
 	for(std::vector<rigid_body*>::iterator it = aBodies.begin(); it!=aBodies.end(); ++it, ++i)
 	{
-		rigid_body::configuration::bounding_box &Box =
-			(*it)->aConfigurations[SourceConfigurationIndex].
-			BoundingBox;
-
-		for(int Edge = 0;Edge < 4;Edge++)
-		{
-			int Start = Edge;
-			int End = (Edge + 1) % 4;
-
-		//	Line(Box.aVertices[Start].X,Box.aVertices[Start].Y,
-		//		Box.aVertices[End].X,Box.aVertices[End].Y);
-		printf("body %d: edge %d: %0.4f %0.4f %0.4f %0.4f\n", i, Edge,Box.aVertices[Start].X,Box.aVertices[Start].Y,
-				Box.aVertices[End].X,Box.aVertices[End].Y); 
-		}
+		rigid_body::configuration &config =
+			(*it)->aConfigurations[SourceConfigurationIndex];
+		
+		printf("body %d: position: %0.4f %0.4f orientation: %0.4f \n", 
+		i, config.CMPosition.X, config.CMPosition.Y, config.Orientation);
+	
 	}
-/*
-	// draw springs
-
-	if(WorldSpringActive)
-	{
-		rigid_body::configuration::bounding_box &Box =
-			aBodies[0].aConfigurations[SourceConfigurationIndex].BoundingBox;
-
-		// Line(Box.aVertices[0].X,Box.aVertices[0].Y,
-		//	WorldSpringAnchor.X,WorldSpringAnchor.Y);
-	}
-
-	if(BodySpringActive)
-	{
-		assert(NumberOfBodies() >= 2);
-		rigid_body::configuration::bounding_box &Box0 =
-			aBodies[0].aConfigurations[SourceConfigurationIndex].BoundingBox;
-		rigid_body::configuration::bounding_box &Box1 =
-			aBodies[1].aConfigurations[SourceConfigurationIndex].BoundingBox;
-
-
-		vector_2 P0 = Box0.aVertices[Body0SpringVertexIndex];
-		vector_2 P1 = Box1.aVertices[Body1SpringVertexIndex];
-		// Line(P0.X,P0.Y,P1.X,P1.Y);
-	}
-*/
 }
 
 
@@ -177,34 +127,15 @@ void simulation_world::Simulate( real DeltaTime )
 
 	while(CurrentTime < DeltaTime)
 	{
-		printf("before computeforces:\n");	
-	        Render();
 		ComputeForces(SourceConfigurationIndex);
-
-		printf("before integration:\n");	
-	        Render();
-	
 		Integrate(TargetTime-CurrentTime);
-
-		printf("before calcverts:\n");	
-	        Render();
-
-		for(std::vector<rigid_body*>::iterator it = aBodies.begin(); it!=aBodies.end(); ++it)
-		{
-			(*it)->CalculateVertices(TargetConfigurationIndex);
-		}
-	
 		// we made a successful step, so swap configurations
 		// to "save" the data for the next step
-
 		CurrentTime = TargetTime;
 		TargetTime = DeltaTime;
 
 		SourceConfigurationIndex = SourceConfigurationIndex ? 0 : 1;
 		TargetConfigurationIndex = TargetConfigurationIndex ? 0 : 1;
-
-		printf("after calcverts:\n");	
-	        Render();
 	}
 }
 
@@ -219,49 +150,28 @@ void simulation_world::ComputeForces( int ConfigurationIndex )
 	for(std::vector<rigid_body*>::iterator it = aBodies.begin(); it!=aBodies.end(); ++it)
 	{
 		rigid_body &Body = **it;
-		rigid_body::configuration &Configuration =
-			Body.aConfigurations[ConfigurationIndex];
+		rigid_body::configuration &Configuration = Body.aConfigurations[ConfigurationIndex];
 
 		// clear forces
-
 		Configuration.Torque = r(0);
 		Configuration.CMForce = vector_2(r(0),r(0));
-
-		if(GravityActive)
-		{
-			Configuration.CMForce += Gravity / Body.OneOverMass; 
-		}
-
-		if(DampingActive)
-		{
-			Configuration.CMForce += -Kdl * Configuration.CMVelocity;
-			Configuration.Torque += -Kda * Configuration.AngularVelocity;
-		}
 	}
 
-	if(BodySpringActive)
+	//	BodySpring
 	{
 		rigid_body *Body0 = aBodies.at(0);
-
-		rigid_body::configuration &Configuration0 =
-				Body0->aConfigurations[ConfigurationIndex];
-		rigid_body::configuration::bounding_box &Box0 =
-				Configuration0.BoundingBox;
-		vector_2 Position0 = Box0.aVertices[Body0SpringVertexIndex];
+		rigid_body::configuration &Configuration0 = Body0->aConfigurations[ConfigurationIndex];
+ 		matrix_2x2 const Rotation0(Configuration0.Orientation);
+		vector_2 Position0 = Configuration0.CMPosition + Rotation0 * vector_2( 10.0, 10.0);
 		vector_2 U0 = Position0 - Configuration0.CMPosition;
-		vector_2 VU0 = Configuration0.CMVelocity +
-						Configuration0.AngularVelocity * GetPerpendicular(U0);
+		vector_2 VU0 = Configuration0.CMVelocity + Configuration0.AngularVelocity * GetPerpendicular(U0);
 
 		rigid_body *Body1 = aBodies.at(1);
-
-		rigid_body::configuration &Configuration1 =
-				Body1->aConfigurations[ConfigurationIndex];
-		rigid_body::configuration::bounding_box &Box1 =
-				Configuration1.BoundingBox;
-		vector_2 Position1 = Box1.aVertices[Body1SpringVertexIndex];
+		rigid_body::configuration &Configuration1 = Body1->aConfigurations[ConfigurationIndex];
+ 		matrix_2x2 const Rotation1(Configuration1.Orientation);
+		vector_2 Position1 = Configuration1.CMPosition + Rotation1  * vector_2( 10.0, 10.0);
 		vector_2 U1 = Position1 - Configuration1.CMPosition;
-		vector_2 VU1 = Configuration1.CMVelocity +
-						Configuration1.AngularVelocity * GetPerpendicular(U1);
+		vector_2 VU1 = Configuration1.CMVelocity + Configuration1.AngularVelocity * GetPerpendicular(U1);
 
 		// spring goes from 0 to 1
 
@@ -281,25 +191,20 @@ void simulation_world::ComputeForces( int ConfigurationIndex )
 		Configuration0.Torque -= PerpDotProduct(U0,Spring);
 
 		Configuration1.CMForce += Spring;
-		Configuration1.Torque += PerpDotProduct(U1,Spring);
+		Configuration1.Torque += PerpDotProduct(U1,Spring) ;
 	}
- 
-	if(WorldSpringActive)
+ /*
+	// WorldSpring 
 	{
 		// apply spring to body 0's vertex 0 to anchor
 
 		rigid_body &Body = *aBodies.at(0);
 		rigid_body::configuration &Configuration =
 				Body.aConfigurations[ConfigurationIndex];
-		rigid_body::configuration::bounding_box &Box =
-				Configuration.BoundingBox;
-
-		vector_2 Position = Box.aVertices[0];
-		printf("%0.4f %0.4f \n", Position.X, Position.Y);
-
+	
+		vector_2 Position = Configuration.CMPosition + Configuration.Orientation  * vector_2( 10.0, 0.0);
 		vector_2 U = Position - Configuration.CMPosition;
-		vector_2 VU = Configuration.CMVelocity +
-						Configuration.AngularVelocity * GetPerpendicular(U);
+		vector_2 VU = Configuration.CMVelocity + Configuration.AngularVelocity * GetPerpendicular(U);
 
 		vector_2 Spring = -Kws * (Position - WorldSpringAnchor);
 		// project velocity onto spring to get damping vector
@@ -312,35 +217,10 @@ void simulation_world::ComputeForces( int ConfigurationIndex )
 		Configuration.CMForce += Spring;
 		Configuration.Torque += PerpDotProduct(U,Spring);
 	}
+*/
 }	
 
 
-/*----------------------------------------------------------------------------
-CalculateVertices - figure out the body vertices from the configuration
-@todo should't this be in the body?
-*/
-
-void rigid_body::CalculateVertices( int ConfigurationIndex )
-{
-		matrix_2x2 const Rotation(
-			this->aConfigurations[ConfigurationIndex].
-				Orientation);
-
-		vector_2 const Position =
-			this->aConfigurations[ConfigurationIndex].
-				CMPosition;
-
-		rigid_body::configuration::bounding_box &Box =
-			this->aConfigurations[ConfigurationIndex].BoundingBox;
-
-		real const Width = this->Width / 2.0f;
-		real const Height = this->Height / 2.0f;
-
-		Box.aVertices[0] = Position + Rotation * vector_2( Width, Height);
-		Box.aVertices[1] = Position + Rotation * vector_2( Width,-Height);
-		Box.aVertices[2] = Position + Rotation * vector_2(-Width,-Height);
-		Box.aVertices[3] = Position + Rotation * vector_2(-Width, Height);
-}
 
 /*----------------------------------------------------------------------------
 
@@ -360,7 +240,6 @@ void simulation_world::Integrate( real DeltaTime )
 			(*it)->aConfigurations[SourceConfigurationIndex];
 		rigid_body::configuration &Target =
 			(*it)->aConfigurations[TargetConfigurationIndex];
-		printf( "src: %d, target %d \n", SourceConfigurationIndex,TargetConfigurationIndex); 
 
 		Target.CMPosition = Source.CMPosition +
 				DeltaTime * Source.CMVelocity;
