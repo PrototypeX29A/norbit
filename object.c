@@ -288,25 +288,3 @@ void FreeObject(Object *obj)
 }
 
 
-void DrawObject(Object *obj)
-{
-	int nf, i;
-	Face *face;
-	Point *n, *t, *v;
-	
-	glBindTexture(GL_TEXTURE_2D, obj->TexId);
-	glBegin(GL_TRIANGLES);
-	for(nf=0; nf < obj->nFaces; nf++) {
-		face = &obj->Faces[nf];
-		for(i=0; i<3; i++) {
-			n = &obj->Normals[face->NorIdx[i]];
-			t = &obj->TexCoords[face->TexIdx[i]];
-			v = &obj->Vertices[face->VertIdx[i]];
-			
-			glNormal3f(n->x, n->y, n->z);
-			glTexCoord3f(t->x, t->y, t->z);
-			glVertex3f(v->x, v->y, v->z);
-		}
-	}
-	glEnd();
-}

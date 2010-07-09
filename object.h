@@ -33,13 +33,14 @@ typedef struct Object {
 	GLfloat Diffuse[4];
 	GLfloat Ambient[4];
 	GLfloat Specular[4];
+
 	int nFaces;
 	Face *Faces;          /* Array of faces */
 	int nVertices;
 	Point *Vertices;       /* Array of vertex coordinates */
 	Point *TexCoords;     /* Array of texture coordinates */
 	Point *Normals;       /* Array of normal vectors */
-} Object;
+} Object;	
 
 
 Object *LoadObject(char *filename);

@@ -126,11 +126,13 @@ int main(int argc, char **argv)
 	printf("Number of Faces: %d\n", object->nFaces);
 	printf("Number of Vertices: %d\n", object->nVertices);
 	printf("\n");
+	shape* sh = new shape();
+	sh->set_object(object);
 	game_object* ship1 = new game_object();
-	ship1->set_object(object);
+	ship1->set_shape(sh);
 	ship1->set_position(0.0f, 1.0f, 0.0f);
 	game_object* ship2 = new game_object();
-	ship2->set_object(object);
+	ship2->set_shape(sh);
 	ship2->set_position(0.0f, 1.8f, -0.7f);
 	
 
