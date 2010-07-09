@@ -16,7 +16,7 @@ using namespace std;
 void game_object::draw()
 {
 	glPushMatrix();
-	glTranslatef(-posx()*0.2,-posy()*0.2,-posz()*0.2);
+	glTranslatef(-posx(),-posy(),-posz());
 	glRotatef(-body->aConfigurations[body->SourceConfigurationIndex].Orientation*57.324840764f, 0.0f,0.0f,1.0f);
 		
 	glRotatef(90,1.0f,0.0f,0.0f);	
@@ -65,11 +65,15 @@ void game_object::set_rigid_body(rigid_body * b){
 }
 
 
+
 void game_object::apply_force(vector_2& F, vector_2& Pl){
 	assert(body);
 	body->apply_force(F, Pl);
 }
 
+shape::shape()
+{
+}
 
 shape::~shape()
 {
@@ -80,47 +84,3 @@ shape::~shape()
 	free(Faces);
 }
 
-shape::shape(string *name)
-{
-	char *cname = (char*) malloc(200);
-	strcpy (cname, name->c_str()); 
-	if((object = InitObject(cname)) == (Object*)NULL) {
-
-		printf("Cannot load the object!\n");
-	}
-	set_object(object);
-}
-
-
-void shape::set_object(Object *obj)
-{
-	TexId = obj->TexId;
-	nFaces = obj->nFaces;
-	Faces = obj->Faces;       
-	Vertices = obj->Vertices;
-	TexCoords = obj->TexCoords;
-	Normals = obj->Normals;
-}
-
-void shape::draw()
-{
-	int nf, i;
-	Face *face;
-	Point *n, *t, *v;
-	
-	glBindTexture(GL_TEXTURE_2D, TexId);
-	glBegin(GL_TRIANGLES);
-	for(nf=0; nf < nFaces; nf++) {
-		face = &Faces[nf];
-		for(i=0; i<3; i++) {
-			n = &Normals[face->NorIdx[i]];
-			t = &TexCoords[face->TexIdx[i]];
-			v = &Vertices[face->VertIdx[i]];
-			
-			glNormal3f(n->x, n->y, n->z);
-			glTexCoord3f(t->x, t->y, t->z);
-			glVertex3f(v->x, v->y, v->z);
-		}
-	}
-	glEnd();
-}
