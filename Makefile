@@ -1,9 +1,9 @@
 CC = g++
 LD = g++
 CFLAGS = `sdl-config --cflags` -g  
-LDFLAGS = `sdl-config --libs` -lSDL_image -lGL
+LDFLAGS = `sdl-config --libs` -lSDL_image -lGL -lGLU
 RM   = /bin/rm -f
-OBJS = main.o object.o extra.o shadow.o game_object.o physics.o obj_shape.o control.o
+OBJS = main.o object.o extra.o shadow.o game_object.o physics.o obj_shape.o control.o sphere_shape.o
 
 
 .PHONY: clean
@@ -34,5 +34,7 @@ game_object.o: game_object.cpp game_object.h physics.h math2d.h shadow.h object.
 	$(CC) $(CFLAGS) -c game_object.cpp
 obj_shape.o: obj_shape.cpp obj_shape.h
 	$(CC) $(CFLAGS) -c obj_shape.cpp
+sphere_shape.o: sphere_shape.cpp sphere_shape.h
+	$(CC) $(CFLAGS) -c sphere_shape.cpp
 clean:
 	$(RM) *~ $(OBJS) norbit test_obj test_obj.o test_physics test_physics.o
