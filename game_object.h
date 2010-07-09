@@ -6,13 +6,18 @@
 
 using namespace std;
 
+
+
+#if !defined(GO_H)
+#define GO_H
+
 class shape
 {
 public:
 	shape();
 	virtual ~shape();
 	//shape(string *name);	
-	virtual void draw() = 0;
+	virtual void draw() = 0 ; 
 //	void set_object(Object *object);
 		
 private:
@@ -29,11 +34,11 @@ private:
 class game_object
 {
 public:
-	void draw();
+	void draw() ;
 	void set_shape(shape *shape);
 	void set_rigid_body(rigid_body*);
 	void set_position(float x, float y, float z);
-	void DrawObject(Object *object);
+	void DrawObject(Object *object) ;
 	
 	static void set_simulation_world(simulation_world *w);
 	void apply_force(vector_2 const & F, vector_2 const & Pl);
@@ -48,4 +53,4 @@ private:
 	float posz();
 };
 
-
+#endif

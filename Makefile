@@ -3,7 +3,7 @@ LD = g++
 CFLAGS = `sdl-config --cflags` -g  
 LDFLAGS = `sdl-config --libs` -lSDL_image -lGL
 RM   = /bin/rm -f
-OBJS = main.o object.o extra.o shadow.o game_object.o physics.o obj_shape.o
+OBJS = main.o object.o extra.o shadow.o game_object.o physics.o obj_shape.o control.o
 
 
 .PHONY: clean
@@ -28,6 +28,8 @@ test_physics.o: test_physics.cpp physics.h
 	$(CC) $(CFLAGS) -c test_physics.cpp
 physics.o: physics.cpp physics.h math2d.h
 	$(CC) $(CFLAGS) -c physics.cpp
+control.o: control.cpp control.h game_object.h
+	$(CC) $(CFLAGS) -c control.cpp
 game_object.o: game_object.cpp game_object.h physics.h math2d.h shadow.h object.h game_object.h
 	$(CC) $(CFLAGS) -c game_object.cpp
 obj_shape.o: obj_shape.cpp obj_shape.h

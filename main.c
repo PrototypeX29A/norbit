@@ -27,6 +27,7 @@
 #include "extra.h"
 #include "obj_shape.h"
 #include "physics.h"
+#include "control.h"
 
 using namespace std;
 
@@ -77,9 +78,37 @@ int main(int argc, char **argv)
 
 
 /* ----- Init scene --------------- */
-	list<game_object*> *game_objects = new list<game_object*>();
+	list<game_object*> game_objects;
+	list<SpaceShipController*> sship_controllers;
 	simulation_world *world = new simulation_world();
-	init_scene(game_objects, world);
+
+	game_object::set_simulation_world(world);	
+
+	real const Density = r(1.0);
+	shape* sh = new obj_shape(new string("ptr_mk1.obj"));
+
+	game_object* ship1 = new game_object();
+	rigid_body * r = world->add_body( 1.0f );
+	ship1->set_rigid_body(r);
+	ship1->set_shape(sh);
+	ship1->set_position(1.0f, 1.0f, 0.0f);
+	SpaceShipController *control1 = new SpaceShipController(ship1);
+	game_objects.push_front(ship1);
+	sship_controllers.push_front(control1);
+
+	game_object* ship2 = new game_object();
+	r = world->add_body( 1.0f );
+	ship2->set_rigid_body(r);
+	ship2->set_shape(sh);
+	ship2->set_position(-1.0f, 1.5f, -0.0f);
+	SpaceShipController *control2 = new SpaceShipController(ship2);
+	game_objects.push_front(ship2);
+	sship_controllers.push_front(control2);
+
+//	world->aBodies.at(0)->aConfigurations[0].CMVelocity = vector_2(0.10f,0.10f);
+//	world->aBodies.at(0)->aConfigurations[0].AngularVelocity = PI;
+
+
 
 /* ----- Event cycle --------------- */
 	int quit = 0;
@@ -99,10 +128,12 @@ int main(int argc, char **argv)
 						SDL_WM_ToggleFullScreen(screen);
 						break;
 					case SDLK_d:
-						(*game_objects->begin())->apply_force( vector_2(0.0f,-1000.0f), vector_2(1000.0f,-10.0f)); // pushes upward
+
+						control1->toggleEngineL();
 						break;
 					case SDLK_s:
-						(*game_objects->begin())->apply_force( vector_2(0.0f,-1000.0f), vector_2(-1000.0f,-10.0f)); // pushes upward
+						control1->toggleEngineR();
+
 						break;
 					default:
 						break;
@@ -138,6 +169,13 @@ int main(int argc, char **argv)
 
 		
 		interval = FrameTiming();
+/* apply control movement */
+
+		for(list<SpaceShipController*>::const_iterator it = sship_controllers.begin(); it !=sship_controllers.end(); ++it)
+		{
+			(*it)->apply();
+		}
+
 
 /* ----- simulation time ticks ----*/
 
@@ -170,7 +208,7 @@ int main(int argc, char **argv)
 		UpdateLight(&light2, GL_LIGHT2, 0.1f);
 
 /* ----- Objects ----- */
-		for(list<game_object*>::const_iterator it = game_objects->begin(); it != game_objects->end(); ++it)
+		for(list<game_object*>::const_iterator it = game_objects.begin(); it != game_objects.end(); ++it)
 		{
 			(*it)->draw();
 		}
@@ -186,30 +224,6 @@ int main(int argc, char **argv)
 	return 0;	
 }
 
-void init_scene(list<game_object*> *go_list, 	
-	simulation_world *world)
-{
-	game_object::set_simulation_world(world);	
-	real const Density = r(1.0);
-	shape* sh = new obj_shape(new string("ptr_mk1.obj"));
-
-	game_object* ship1 = new game_object();
-	rigid_body * r = world->add_body( 1.0f );
-	ship1->set_rigid_body(r);
-	ship1->set_shape(sh);
-	ship1->set_position(1.0f, 1.0f, 0.0f);
-	go_list->push_front(ship1);
-
-	game_object* ship2 = new game_object();
-	r = world->add_body( 1.0f );
-	ship2->set_rigid_body(r);
-	ship2->set_shape(sh);
-	ship2->set_position(-1.0f, 1.5f, -0.0f);
-
-	go_list->push_front(ship2);
-//	world->aBodies.at(0)->aConfigurations[0].CMVelocity = vector_2(0.10f,0.10f);
-//	world->aBodies.at(0)->aConfigurations[0].AngularVelocity = PI;
-}
 
 void init_sdl(SDL_Surface **screen, int bpp, int flags, int width, int height)
 {
