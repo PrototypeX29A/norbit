@@ -32,5 +32,7 @@ game_object.o: game_object.cpp game_object.h physics.h math2d.h shadow.h object.
 	$(CC) $(CFLAGS) -c game_object.cpp
 obj_shape.o: obj_shape.cpp obj_shape.h
 	$(CC) $(CFLAGS) -c obj_shape.cpp
+sphere_shape.o: sphere_shape.cpp sphere_shape.h
+	$(CC) $(CFLAGS) -c sphere_shape.cpp
 clean:
 	$(RM) *~ $(OBJS) norbit test_obj test_obj.o test_physics test_physics.o
