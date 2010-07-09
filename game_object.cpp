@@ -16,7 +16,8 @@ using namespace std;
 void game_object::draw()
 {
 	glPushMatrix();
-	glTranslatef(-posx(),-posy(),-posz());
+	glTranslatef(-posx()*0.2,-posy()*0.2,-posz()*0.2);
+	// TODO: Add Rotation	
 	glScalef(0.2f, 0.2f, 0.2f); 
 	object_shape->draw();
 	glPopMatrix();
@@ -39,12 +40,12 @@ void game_object::set_position(float x, float y, float z)
 
 float game_object::posx(){
 	assert(world);
-	return body->aConfigurations[world->SourceConfigurationIndex].CMPosition.Y;
+	return body->aConfigurations[world->SourceConfigurationIndex].CMPosition.X;
 }
 
 float game_object::posy(){
 	assert(world);
-	return body->aConfigurations[world->SourceConfigurationIndex].CMPosition.X;
+	return body->aConfigurations[world->SourceConfigurationIndex].CMPosition.Y;
 
 }
 

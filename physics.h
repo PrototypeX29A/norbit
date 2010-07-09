@@ -43,7 +43,7 @@ Declarations for physics code.
 
 struct rigid_body
 {
-	real Width, Height;
+	real Width, Height; // TODO: Remove
 	real OneOverMass, OneOverCMMomentOfInertia;
 
 	enum { NumberOfConfigurations = 2 };
@@ -63,7 +63,7 @@ struct rigid_body
 		{
 			vector_2 aVertices[4];
 
-		} BoundingBox;
+		} BoundingBox; // TODO: Remove
 
 	} aConfigurations[NumberOfConfigurations];
 

@@ -25,7 +25,7 @@
 #include <SDL/SDL.h>
 #include <GL/gl.h>
 #include "extra.h"
-#include "object.h"
+#include "object.h" // TODO: Remove
 #include "shadow.h"
 #include "game_object.h"
 #include "physics.h"
@@ -190,14 +190,14 @@ void init_scene(list<game_object*> *go_list,
 	shape* sh = new shape(new string("ptr_mk1.obj"));
 
 	game_object* ship1 = new game_object();
-	rigid_body * r = world->add_body( Density,40.0f,20.0f);
+	rigid_body * r = world->add_body( Density,10.0f,10.0f);
 	ship1->set_rigid_body(r);
 	ship1->set_shape(sh);
 	ship1->set_position(0.0f, 1.0f, 0.0f);
 	go_list->push_front(ship1);
 
 	game_object* ship2 = new game_object();
-	r = world->add_body( Density,20.0f,10.0f);
+	r = world->add_body( Density,10.0f,10.0f);
 	ship2->set_rigid_body(r);
 	ship2->set_shape(sh);
 	ship2->set_position(0.0f, 1.8f, -0.7f);
