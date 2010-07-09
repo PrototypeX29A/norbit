@@ -139,6 +139,7 @@ int main(int argc, char **argv)
 		real Time = LastTime + 0.02f;
 		printf("time  %0.4f %0.4f\n", Time, LastTime);
 		world->Simulate(Time - LastTime);
+		world->Render();  // some debug output
 		LastTime = Time;
 
 
@@ -190,20 +191,20 @@ void init_scene(list<game_object*> *go_list,
 	shape* sh = new shape(new string("ptr_mk1.obj"));
 
 	game_object* ship1 = new game_object();
-	rigid_body * r = world->add_body( Density,10.0f,10.0f);
+	rigid_body * r = world->add_body( 1.0f );
 	ship1->set_rigid_body(r);
 	ship1->set_shape(sh);
-	ship1->set_position(0.0f, 1.0f, 0.0f);
+	ship1->set_position(2.0f, 1.0f, 0.0f);
 	go_list->push_front(ship1);
 
 	game_object* ship2 = new game_object();
-	r = world->add_body( Density,10.0f,10.0f);
+	r = world->add_body( 1.0f );
 	ship2->set_rigid_body(r);
 	ship2->set_shape(sh);
-	ship2->set_position(0.0f, 1.8f, -0.7f);
+	ship2->set_position(1.0f, 1.8f, -0.0f);
 	go_list->push_front(ship2);
-	//world->aBodies.at(0)->aConfigurations[0].CMVelocity = vector_2(r(0.40),r(0.10));
-	//world->aBodies.at(2)->aConfigurations[0].AngularVelocity = r(PI);
+//	world->aBodies.at(0)->aConfigurations[0].CMVelocity = vector_2(0.10f,0.10f);
+//	world->aBodies.at(0)->aConfigurations[0].AngularVelocity = PI;
 }
 
 void init_sdl(SDL_Surface **screen, int bpp, int flags, int width, int height)
