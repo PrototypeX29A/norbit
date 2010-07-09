@@ -109,17 +109,19 @@ void simulation_world::Simulate( real DeltaTime )
 
 	while(CurrentTime < DeltaTime)
 	{
-		ComputeForces();
+		//ComputeForces();
 		Integrate(TargetTime-CurrentTime);
 		// we made a successful step, so swap configurations
 		// to "save" the data for the next step
 		CurrentTime = TargetTime;
 		TargetTime = DeltaTime;
+		ResetForces();
 		for(std::vector<rigid_body*>::iterator it = aBodies.begin(); it!=aBodies.end(); ++it)
 		{
 			(*it)->SourceConfigurationIndex = (*it)->SourceConfigurationIndex ? 0 : 1;
 			(*it)->TargetConfigurationIndex = (*it)->TargetConfigurationIndex ? 0 : 1;
 		}	
+	
 	}
 }
 
@@ -129,7 +131,7 @@ ComputeForces - compute forces for gravity, spring, etc.
 
 */
 
-void simulation_world::ComputeForces()
+void simulation_world::ResetForces()
 {
 	for(std::vector<rigid_body*>::iterator it = aBodies.begin(); it!=aBodies.end(); ++it)
 	{
@@ -140,7 +142,7 @@ void simulation_world::ComputeForces()
 		Configuration.Torque = r(0);
 		Configuration.CMForce = vector_2(r(0),r(0));
 	}
-
+/*
 	//	BodySpring
 	{
 		rigid_body *Body0 = aBodies.at(0);
@@ -177,7 +179,8 @@ void simulation_world::ComputeForces()
 		Configuration1.CMForce += Spring;
 		Configuration1.Torque += PerpDotProduct(U1,Spring) ;
 	}
- /*
+ */
+/*
 	// WorldSpring 
 	{
 		// apply spring to body 0's vertex 0 to anchor
@@ -243,10 +246,15 @@ void simulation_world::Integrate( real DeltaTime )
 
 rigid_body::rigid_body():SourceConfigurationIndex(0), TargetConfigurationIndex(1) {}
 
-void rigid_body::apply_force(vector_2& F, vector_2& Pl){
+void rigid_body::apply_force(vector_2 const & F, vector_2 const & Pl){
+	matrix_2x2 const Rotation( aConfigurations[SourceConfigurationIndex].Orientation);
+	aConfigurations[SourceConfigurationIndex].CMForce += Rotation*F;
+	aConfigurations[SourceConfigurationIndex].Torque += PerpDotProduct(Pl,Rotation*F) ;
 
-	aConfigurations[SourceConfigurationIndex].CMForce += F;
-	aConfigurations[SourceConfigurationIndex].Torque += PerpDotProduct(Pl,F) ;
+	printf("applying total torque: %0.4f  F:  %0.4f  %0.4f \n", 
+		aConfigurations[SourceConfigurationIndex].Torque,
+		aConfigurations[SourceConfigurationIndex].CMForce.X,
+		aConfigurations[SourceConfigurationIndex].CMForce.Y);
 
 
 }

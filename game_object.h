@@ -36,7 +36,7 @@ public:
 	void DrawObject(Object *object);
 	
 	static void set_simulation_world(simulation_world *w);
-	void apply_force(vector_2& F, vector_2& Pl);
+	void apply_force(vector_2 const & F, vector_2 const & Pl);
 
 private:
 	shape *object_shape;

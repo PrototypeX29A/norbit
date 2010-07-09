@@ -62,7 +62,7 @@ struct rigid_body
 
 	} aConfigurations[NumberOfConfigurations];
 
-	void apply_force(vector_2& F, vector_2& Pl);
+	void apply_force(vector_2 const & F, vector_2 const & Pl);
 
 	int SourceConfigurationIndex;
 	int TargetConfigurationIndex;
@@ -119,7 +119,7 @@ private:
 	int CollidingCornerIndex;
 
 
-	void ComputeForces(  );
+	void ResetForces(  );
 	void Integrate( real DeltaTime );
 
 

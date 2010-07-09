@@ -17,8 +17,7 @@ void game_object::draw()
 {
 	glPushMatrix();
 	glTranslatef(-posx(),-posy(),-posz());
-	glRotatef(-body->aConfigurations[body->SourceConfigurationIndex].Orientation*57.324840764f, 0.0f,0.0f,1.0f);
-		
+	glRotatef(body->aConfigurations[body->SourceConfigurationIndex].Orientation*180.0/PI, 0.0f,0.0f,1.0f);
 	glRotatef(90,1.0f,0.0f,0.0f);	
 	glScalef(0.2f, 0.2f, 0.2f); 
 	object_shape->draw();
@@ -66,7 +65,7 @@ void game_object::set_rigid_body(rigid_body * b){
 
 
 
-void game_object::apply_force(vector_2& F, vector_2& Pl){
+void game_object::apply_force(vector_2 const &F, vector_2 const &Pl){
 	assert(body);
 	body->apply_force(F, Pl);
 }

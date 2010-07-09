@@ -98,6 +98,14 @@ int main(int argc, char **argv)
 					case SDLK_F1:
 						SDL_WM_ToggleFullScreen(screen);
 						break;
+					case SDLK_d:
+						(*game_objects->begin())->apply_force( vector_2(0.0f,-1000.0f), vector_2(1000.0f,-10.0f)); // pushes upward
+						break;
+					case SDLK_s:
+						(*game_objects->begin())->apply_force( vector_2(0.0f,-1000.0f), vector_2(-1000.0f,-10.0f)); // pushes upward
+						break;
+					default:
+						break;
 					}
 					break;
 				case SDL_VIDEORESIZE:
@@ -133,11 +141,13 @@ int main(int argc, char **argv)
 
 /* ----- simulation time ticks ----*/
 
+
+
 		static real LastTime = 0;
 		real Time = LastTime  + 0.0001f;
-		printf("time  %0.4f %0.4f\n", Time, LastTime);
+//		printf("time  %0.4f %0.4f\n", Time, LastTime);
 		world->Simulate(Time - LastTime);
-		world->Render();  // some debug output
+//		world->Render();  // some debug output
 		LastTime = Time;
 
 
@@ -187,14 +197,15 @@ void init_scene(list<game_object*> *go_list,
 	rigid_body * r = world->add_body( 1.0f );
 	ship1->set_rigid_body(r);
 	ship1->set_shape(sh);
-	ship1->set_position(2.0f, 1.0f, 0.0f);
+	ship1->set_position(1.0f, 1.0f, 0.0f);
 	go_list->push_front(ship1);
 
 	game_object* ship2 = new game_object();
 	r = world->add_body( 1.0f );
 	ship2->set_rigid_body(r);
 	ship2->set_shape(sh);
-	ship2->set_position(-1.0f, -20.0f, -0.0f);
+	ship2->set_position(-1.0f, 1.5f, -0.0f);
+
 	go_list->push_front(ship2);
 //	world->aBodies.at(0)->aConfigurations[0].CMVelocity = vector_2(0.10f,0.10f);
 //	world->aBodies.at(0)->aConfigurations[0].AngularVelocity = PI;
