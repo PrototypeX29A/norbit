@@ -28,6 +28,7 @@ physics.cpp - This file implements the 2D physics simulator.
 
 #include <assert.h>
 #include <stdio.h>
+#include <vector>
 #include "physics.h"
 
  real const simulation_world::Kws;			// Hooke's spring constant
@@ -40,13 +41,13 @@ physics.cpp - This file implements the 2D physics simulator.
 
 //helper func
 
-void InitializeBody( rigid_body &Body, real Density, real Width, real Height,
-					real CoefficientOfRestitution )
+rigid_body* simulation_world::add_body( real Density, real Width, real Height)
 {				
 	real const Mass = Density * Width * Height;
 
-	Body.CoefficientOfRestitution = CoefficientOfRestitution;
-
+	rigid_body* B = new rigid_body();
+	rigid_body &Body = *B;
+	
 	Body.Width = Width;
 	Body.Height = Height;
 
@@ -61,6 +62,9 @@ void InitializeBody( rigid_body &Body, real Density, real Width, real Height,
 	Body.aConfigurations[0].Orientation = r(0);
 	Body.aConfigurations[0].AngularVelocity = r(0);
 	Body.aConfigurations[0].Torque = r(0);
+	Body.CalculateVertices(0);
+	aBodies.push_back(B);
+	return B;
 }
 
 
@@ -75,114 +79,22 @@ simulation_world::simulation_world( real WorldWidth_, real WorldHeight_ ) :
 	WorldWidth(WorldWidth_), WorldHeight(WorldHeight_),
 	SourceConfigurationIndex(0), TargetConfigurationIndex(1)
 {
+	//initialize some superfluous parameters
+	WorldSpringActive =0;		// spring goes from body 0: vertex 0 to origin
+	WorldSpringAnchor.X = 0.0f;
+	WorldSpringAnchor.Y = 0.0f;
 
+	BodySpringActive = 1;		// spring goes from body 0 to body 1
+	Body0SpringVertexIndex = 2;
+	Body1SpringVertexIndex = 0;
 
-//initialize some superfluous parameters
-WorldSpringActive = 0;		// spring goes from body 0: vertex 0 to origin
-WorldSpringAnchor.X = 0.0f;
-WorldSpringAnchor.Y = 0.0f;
+	GravityActive = 1;
+	Gravity.X = 0.0f;
+	Gravity.Y = 100.0f;
 
-BodySpringActive = 0;		// spring goes from body 0 to body 1
-Body0SpringVertexIndex = 2;
-Body1SpringVertexIndex = 0;
+	DampingActive = 0;
 
-GravityActive = 0;
-Gravity.X = 0.0f;
-Gravity.Y = 100.0f;
-
-DampingActive = 0;
-
-
-
-
-
-
-
-	// initialize bodies
-	real const Density = r(0.01);
-	InitializeBody(aBodies[0],Density,r(40),r(20),r(1));
-	InitializeBody(aBodies[1],Density,r(50),r(10),r(1));
-
-	aBodies[0].aConfigurations[0].CMVelocity = vector_2(r(40),r(10));
-	aBodies[0].aConfigurations[0].AngularVelocity = r(PI);
-
-	// initialize walls
-	aWalls[0].Normal = vector_2(r(0),r(-1));
-	aWalls[0].c = r(WorldHeight/2 - 3);
-
-	aWalls[1].Normal = vector_2(r(0),r(1));
-	aWalls[1].c = r(WorldHeight/2 - 3);
-
-	aWalls[2].Normal = vector_2(r(-1),r(0));
-	aWalls[2].c = r(WorldWidth/2 - 3);
-
-	aWalls[3].Normal = vector_2(r(1),r(0));
-	aWalls[3].c = r(WorldWidth/2 - 3);
-
-	aWalls[4].Normal = GetNormal(vector_2(r(0.5),r(1)));
-	aWalls[4].c = r(WorldWidth/2);
-
-	// generate the wall lines
-	for(int Counter = 0;Counter < NumberOfWalls;Counter++)
-	{
-		wall &Wall = aWalls[Counter];
-
-		// make a big line in the direction of the wall
-
-		vector_2 PointOnWall = -Wall.c * Wall.Normal;
-		vector_2 v = GetPerpendicular(Wall.Normal);
-		real t0 = -REAL_MAX;
-		real t1 = REAL_MAX;
-
-		// now clip the line to the walls
-
-		for(int WallIndex = 0;WallIndex < NumberOfWalls;WallIndex++)
-		{
-			if(WallIndex != Counter)
-			{
-				wall &ClipWall = aWalls[WallIndex];
-
-				real Denominator = DotProduct(v,ClipWall.Normal);
-
-				if(fabs(Denominator) > Epsilon)
-				{
-					// not coplanar
-
-					real t = - (ClipWall.c +
-								DotProduct(PointOnWall,ClipWall.Normal)) /
-									Denominator;
-
-					if(Denominator > r(0))
-					{
-						// the clip wall's clipping the t0 side of line
-						if(t > t0)
-						{
-							t0 = t;
-						}
-					}
-					else
-					{
-						// it's clipping the t1 side
-						if(t < t1)
-						{
-							t1 = t;
-						}
-					}
-				}
-			}
-		}
-
-		// make sure we got clipped
-		assert((t0 != -REAL_MAX) && (t1 != REAL_MAX));
-		// but not completely clipped
-		assert(t0 < t1);
-
-		Wall.StartPoint = PointOnWall + t0 * v;
-		Wall.EndPoint = PointOnWall + t1 * v;
-	}
-
-	// calculate initial box positions
-	CalculateVertices(0);
+	
 }
 
 /*----------------------------------------------------------------------------
@@ -202,28 +114,15 @@ Render - render the source configurations
 
 */
 
-#pragma warning(disable:4244)		// float -> int
 void simulation_world::Render( void )
 {
-	int Counter;
-
-	// draw walls
-
-	for(Counter = 0;Counter < NumberOfWalls;Counter++)
-	{
-		wall &Wall = aWalls[Counter];
-
-	//	Line(Wall.StartPoint.X,Wall.StartPoint.Y,
-	//		Wall.EndPoint.X,Wall.EndPoint.Y);
-
-	}
 
 	// draw bodies
-
-	for(Counter = 0;Counter < NumberOfBodies;Counter++)
+	int i = 0;
+	for(std::vector<rigid_body*>::iterator it = aBodies.begin(); it!=aBodies.end(); ++it, ++i)
 	{
 		rigid_body::configuration::bounding_box &Box =
-			aBodies[Counter].aConfigurations[SourceConfigurationIndex].
+			(*it)->aConfigurations[SourceConfigurationIndex].
 			BoundingBox;
 
 		for(int Edge = 0;Edge < 4;Edge++)
@@ -233,11 +132,11 @@ void simulation_world::Render( void )
 
 		//	Line(Box.aVertices[Start].X,Box.aVertices[Start].Y,
 		//		Box.aVertices[End].X,Box.aVertices[End].Y);
-		printf("body %d: edge %d: %0.4f %0.4f %0.4f %0.4f\n", Counter, Edge,Box.aVertices[Start].X,Box.aVertices[Start].Y,
+		printf("body %d: edge %d: %0.4f %0.4f %0.4f %0.4f\n", i, Edge,Box.aVertices[Start].X,Box.aVertices[Start].Y,
 				Box.aVertices[End].X,Box.aVertices[End].Y); 
 		}
 	}
-
+/*
 	// draw springs
 
 	if(WorldSpringActive)
@@ -251,33 +150,18 @@ void simulation_world::Render( void )
 
 	if(BodySpringActive)
 	{
+		assert(NumberOfBodies() >= 2);
 		rigid_body::configuration::bounding_box &Box0 =
 			aBodies[0].aConfigurations[SourceConfigurationIndex].BoundingBox;
 		rigid_body::configuration::bounding_box &Box1 =
 			aBodies[1].aConfigurations[SourceConfigurationIndex].BoundingBox;
 
-		assert(NumberOfBodies >= 2);
+
 		vector_2 P0 = Box0.aVertices[Body0SpringVertexIndex];
 		vector_2 P1 = Box1.aVertices[Body1SpringVertexIndex];
 		// Line(P0.X,P0.Y,P1.X,P1.Y);
 	}
-
-	// draw gravity vector
-
-	if(GravityActive)
-	{
-		// Line(0,0,0,-30);
-		// Line(0,-30,5,-25);
-		// Line(0,-30,-5,-25);
-	}
-
-	// draw damping symbol
-
-	if(DampingActive)
-	{
-		// Line(-5,0,5,0);
-		// Line(0,-5,0,5);
-	}
+*/
 }
 
 
@@ -296,52 +180,36 @@ void simulation_world::Simulate( real DeltaTime )
 
 	while(CurrentTime < DeltaTime)
 	{
+		printf("before computeforces:\n");	
+	        Render();
 		ComputeForces(SourceConfigurationIndex);
 
+		printf("before integration:\n");	
+	        Render();
+	
 		Integrate(TargetTime-CurrentTime);
 
-		CalculateVertices(TargetConfigurationIndex);
+		printf("before calcverts:\n");	
+	        Render();
 
-		CheckForCollisions(TargetConfigurationIndex);
+for(std::vector<rigid_body*>::iterator it = aBodies.begin(); it!=aBodies.end(); ++it)
+	{
+		(*it)->CalculateVertices(TargetConfigurationIndex);
+}
+	
 
-		if(CollisionState == Penetrating)
-		{
-			// we simulated too far, so subdivide time and try again
-			TargetTime = (CurrentTime + TargetTime) / r(2);
 
-			// blow up if we aren't moving forward each step, which is
-			// probably caused by interpenetration at the frame start
+		// we made a successful step, so swap configurations
+		// to "save" the data for the next step
 
-			assert(fabs(TargetTime - CurrentTime) > Epsilon);
-		}
-		else
-		{
-			// either colliding or clear
+		CurrentTime = TargetTime;
+		TargetTime = DeltaTime;
 
-			if(CollisionState == Colliding)
-			{
-				// @todo handle multiple simultaneous collisions
+		SourceConfigurationIndex = SourceConfigurationIndex ? 0 : 1;
+		TargetConfigurationIndex = TargetConfigurationIndex ? 0 : 1;
 
-				int Counter = 0;
-				do
-				{
-					ResolveCollisions(TargetConfigurationIndex);
-					Counter++;
-				} while((CheckForCollisions(TargetConfigurationIndex) ==
-							Colliding) && (Counter < 100));
-
-				assert(Counter < 100);
-			}
-
-			// we made a successful step, so swap configurations
-			// to "save" the data for the next step
-			
-			CurrentTime = TargetTime;
-			TargetTime = DeltaTime;
-
-			SourceConfigurationIndex = SourceConfigurationIndex ? 0 : 1;
-			TargetConfigurationIndex = TargetConfigurationIndex ? 0 : 1;
-		}
+		printf("after calcverts:\n");	
+	        Render();
 	}
 }
 
@@ -353,11 +221,9 @@ ComputeForces - compute forces for gravity, spring, etc.
 
 void simulation_world::ComputeForces( int ConfigurationIndex )
 {
-	int Counter;
-
-	for(Counter = 0;Counter < NumberOfBodies;Counter++)
+	for(std::vector<rigid_body*>::iterator it = aBodies.begin(); it!=aBodies.end(); ++it)
 	{
-		rigid_body &Body = aBodies[Counter];
+		rigid_body &Body = **it;
 		rigid_body::configuration &Configuration =
 			Body.aConfigurations[ConfigurationIndex];
 
@@ -380,9 +246,10 @@ void simulation_world::ComputeForces( int ConfigurationIndex )
 
 	if(BodySpringActive)
 	{
-		rigid_body &Body0 = aBodies[0];
+		rigid_body *Body0 = aBodies.at(0);
+
 		rigid_body::configuration &Configuration0 =
-				Body0.aConfigurations[ConfigurationIndex];
+				Body0->aConfigurations[ConfigurationIndex];
 		rigid_body::configuration::bounding_box &Box0 =
 				Configuration0.BoundingBox;
 		vector_2 Position0 = Box0.aVertices[Body0SpringVertexIndex];
@@ -390,9 +257,10 @@ void simulation_world::ComputeForces( int ConfigurationIndex )
 		vector_2 VU0 = Configuration0.CMVelocity +
 						Configuration0.AngularVelocity * GetPerpendicular(U0);
 
-		rigid_body &Body1 = aBodies[1];
+		rigid_body *Body1 = aBodies.at(1);
+
 		rigid_body::configuration &Configuration1 =
-				Body1.aConfigurations[ConfigurationIndex];
+				Body1->aConfigurations[ConfigurationIndex];
 		rigid_body::configuration::bounding_box &Box1 =
 				Configuration1.BoundingBox;
 		vector_2 Position1 = Box1.aVertices[Body1SpringVertexIndex];
@@ -420,18 +288,19 @@ void simulation_world::ComputeForces( int ConfigurationIndex )
 		Configuration1.CMForce += Spring;
 		Configuration1.Torque += PerpDotProduct(U1,Spring);
 	}
-
+ 
 	if(WorldSpringActive)
 	{
 		// apply spring to body 0's vertex 0 to anchor
 
-		rigid_body &Body = aBodies[0];
+		rigid_body &Body = *aBodies.at(0);
 		rigid_body::configuration &Configuration =
 				Body.aConfigurations[ConfigurationIndex];
 		rigid_body::configuration::bounding_box &Box =
 				Configuration.BoundingBox;
 
 		vector_2 Position = Box.aVertices[0];
+		printf("%0.4f %0.4f \n", Position.X, Position.Y);
 
 		vector_2 U = Position - Configuration.CMPosition;
 		vector_2 VU = Configuration.CMVelocity +
@@ -452,38 +321,32 @@ void simulation_world::ComputeForces( int ConfigurationIndex )
 
 
 /*----------------------------------------------------------------------------
-
 CalculateVertices - figure out the body vertices from the configuration
-
 @todo should't this be in the body?
-
 */
 
-void simulation_world::CalculateVertices( int ConfigurationIndex )
+void rigid_body::CalculateVertices( int ConfigurationIndex )
 {
-	int Counter;
 
-	for(Counter = 0;Counter < NumberOfBodies;Counter++)
-	{
+
 		matrix_2x2 const Rotation(
-			aBodies[Counter].aConfigurations[ConfigurationIndex].
+			this->aConfigurations[ConfigurationIndex].
 				Orientation);
 
 		vector_2 const Position =
-			aBodies[Counter].aConfigurations[ConfigurationIndex].
+			this->aConfigurations[ConfigurationIndex].
 				CMPosition;
 
 		rigid_body::configuration::bounding_box &Box =
-			aBodies[Counter].aConfigurations[ConfigurationIndex].BoundingBox;
+			this->aConfigurations[ConfigurationIndex].BoundingBox;
 
-		real const Width = aBodies[Counter].Width / 2.0f;
-		real const Height = aBodies[Counter].Height / 2.0f;
+		real const Width = this->Width / 2.0f;
+		real const Height = this->Height / 2.0f;
 
 		Box.aVertices[0] = Position + Rotation * vector_2( Width, Height);
 		Box.aVertices[1] = Position + Rotation * vector_2( Width,-Height);
 		Box.aVertices[2] = Position + Rotation * vector_2(-Width,-Height);
 		Box.aVertices[3] = Position + Rotation * vector_2(-Width, Height);
-	}
 }
 
 /*----------------------------------------------------------------------------
@@ -498,14 +361,13 @@ Integrate - integrate the rigid body configurations forward in time from
 
 void simulation_world::Integrate( real DeltaTime )
 {
-	int Counter;
-
-	for(Counter = 0;Counter < NumberOfBodies;Counter++)
+	for(std::vector<rigid_body*>::iterator it = aBodies.begin(); it!=aBodies.end(); ++it)
 	{
 		rigid_body::configuration &Source =
-			aBodies[Counter].aConfigurations[SourceConfigurationIndex];
+			(*it)->aConfigurations[SourceConfigurationIndex];
 		rigid_body::configuration &Target =
-			aBodies[Counter].aConfigurations[TargetConfigurationIndex];
+			(*it)->aConfigurations[TargetConfigurationIndex];
+		printf( "src: %d, target %d \n", SourceConfigurationIndex,TargetConfigurationIndex); 
 
 		Target.CMPosition = Source.CMPosition +
 				DeltaTime * Source.CMVelocity;
@@ -514,122 +376,14 @@ void simulation_world::Integrate( real DeltaTime )
 				DeltaTime * Source.AngularVelocity;
 
 		Target.CMVelocity = Source.CMVelocity +
-				(DeltaTime * aBodies[Counter].OneOverMass) * Source.CMForce;
+				(DeltaTime * (*it)->OneOverMass) * Source.CMForce;
 
 		Target.AngularVelocity = Source.AngularVelocity +
-				(DeltaTime * aBodies[Counter].OneOverCMMomentOfInertia) *
+				(DeltaTime * (*it)->OneOverCMMomentOfInertia) *
 					Source.Torque;
 	}
 }
 
 
-/*----------------------------------------------------------------------------
 
-CheckForCollisions - test the current configuration for collisions
-
-@todo handle multiple simultaneous collisions
-
-*/
-
-simulation_world::collision_state
-simulation_world::CheckForCollisions( int ConfigurationIndex )
-{
-	// be optimistic!
-	CollisionState = Clear;
-	float const DepthEpsilon = 1.0f;
-
-	real const HalfWidth = WorldWidth / 2.0f;
-	real const HalfHeight = WorldHeight / 2.0f;
-
-	for(int Body = 0;(Body < NumberOfBodies) &&
-		(CollisionState != Penetrating);Body++)
-	{
-		// @todo active configuration number?!?!?
-		rigid_body::configuration &Configuration =
-				aBodies[Body].aConfigurations[ConfigurationIndex];
-
-		rigid_body::configuration::bounding_box &Box =
-				Configuration.BoundingBox;
-	
-		for(int Counter = 0;(Counter < 4) &&
-			(CollisionState != Penetrating);Counter++)
-		{
-			vector_2 Position = Box.aVertices[Counter];
-
-			vector_2 CMToCornerPerp =
-				GetPerpendicular(Position - Configuration.CMPosition);
-
-			vector_2 Velocity = Configuration.CMVelocity +
-				Configuration.AngularVelocity * CMToCornerPerp;
-
-			for(int WallIndex = 0;(WallIndex < NumberOfWalls) &&
-				(CollisionState != Penetrating);WallIndex++)
-			{
-				wall &Wall = aWalls[WallIndex];
-
-				real axbyc = DotProduct(Position,Wall.Normal) + Wall.c;
-
-				if(axbyc < -DepthEpsilon)
-				{
-					CollisionState = Penetrating;
-				}
-				else
-				if(axbyc < DepthEpsilon)
-				{
-					real RelativeVelocity = DotProduct(Wall.Normal,Velocity);
-
-					if(RelativeVelocity < r(0))
-					{
-						CollisionState = Colliding;
-						CollisionNormal = Wall.Normal;
-						CollidingCornerIndex = Counter;
-						CollidingBodyIndex = Body;
-					}
-				}
-			}
-		}
-	}
-
-	return CollisionState;
-}
-
-
-/*----------------------------------------------------------------------------
-
-ResolveCollisions - calculate collision impulses
-
-@todo handle multiple simultaneous collisions
-
-*/
-
-void simulation_world::ResolveCollisions( int ConfigurationIndex )
-{
-	rigid_body &Body = aBodies[CollidingBodyIndex];
-	rigid_body::configuration &Configuration =
-					Body.aConfigurations[ConfigurationIndex];
-
-	vector_2 Position =
-					Configuration.BoundingBox.aVertices[CollidingCornerIndex];
-
-	vector_2 CMToCornerPerp = GetPerpendicular(Position -
-					Configuration.CMPosition);
-
-	vector_2 Velocity = Configuration.CMVelocity +
-					Configuration.AngularVelocity * CMToCornerPerp;
-
-	real ImpulseNumerator = -(r(1) + Body.CoefficientOfRestitution) *
-					DotProduct(Velocity,CollisionNormal);
-
-	float PerpDot = DotProduct(CMToCornerPerp,CollisionNormal);
-
-	real ImpulseDenominator = Body.OneOverMass +
-			Body.OneOverCMMomentOfInertia * PerpDot * PerpDot;
-
-	real Impulse = ImpulseNumerator / ImpulseDenominator;
-
-	Configuration.CMVelocity += Impulse * Body.OneOverMass * CollisionNormal;
-
-	Configuration.AngularVelocity +=
-							Impulse * Body.OneOverCMMomentOfInertia * PerpDot;
-}
 

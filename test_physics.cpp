@@ -1,89 +1,53 @@
 
 #include <assert.h>
+#include <stdio.h>
 #include "physics.h"
 
 
-/*----------------------------------------------------------------------------
-
-Globals
-
-*/
-
-// weird CodeWarrior bug with global initialization forces me to do this
 #define WIDTH 400
 #define HEIGHT 400
 
-int WorldWidth = WIDTH;
-int WorldHeight = HEIGHT;
+const int WorldWidth = WIDTH;
+const int WorldHeight = HEIGHT;
 
 simulation_world World(r(WIDTH),r(HEIGHT));
 
-float GetTime() { static float t = 0.0f ; return t++; } 
+float GetTime() { static float t = 0.0f ;   printf("%0.4f ",t); return t++; } 
 
 
 
-/*----------------------------------------------------------------------------
-
-Run
-
-*/
-
-void Run( void )
+void RunS( void )
 {
 	static real LastTime = GetTime();
-
 	// use a fixed timestep until we implement a better integrator
 	// real Time = GetTime();
 	real Time = LastTime + r(0.02);
-
+	printf("time  %0.4f %0.4f\n", Time, LastTime);
 	World.Simulate(Time - LastTime);
-
-	World.Render();
-
-	LastTime = Time;
+	printf("after simulate:\n");
+        World.Render();
+	printf("----------------------------------\n");
+ 	LastTime = Time;
+	return; 
 }
-
-/*----------------------------------------------------------------------------
-
-Toggles
-
-*/
-
-void ToggleWorldSpring( void )
-{
-	World.WorldSpringActive = World.WorldSpringActive ? 0 : 1;
-}
-
-void ToggleBodySpring( void )
-{
-	World.BodySpringActive = World.BodySpringActive ? 0 : 1;
-}
-
-void ToggleGravity( void )
-{
-	World.GravityActive = World.GravityActive ? 0 : 1;
-}
-
-void ToggleDamping( void )
-{
-	World.DampingActive = World.DampingActive ? 0 : 1;
-}
-
-
-/*----------------------------------------------------------------------------
-
-utilities
-
-*/
 
 
 int main(int argc, char **argv)
 {
+	// initialize bodies
+	real const Density = r(0.01);
+	World.add_body( Density,r(40),r(20));
+	World.add_body( Density,r(50),r(10));	
+	World.add_body( Density,r(20),r(100));
 
-for(int i=0; i<1000;i++){
+	World.aBodies.at(0)->aConfigurations[0].CMVelocity = vector_2(r(0.40),r(0.10));
+	World.aBodies.at(2)->aConfigurations[0].AngularVelocity = r(PI);
 
- Run();
-}
+
+	for(int i=0; i<1000;i++){
+		printf("run %d\n", i);
+		::RunS();
+	}
 
 	return 0;
 }
