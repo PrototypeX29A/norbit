@@ -1,6 +1,6 @@
 #include <string>
 
-
+#include "object.h"
 #include "physics.h"
 
 using namespace std;
@@ -8,10 +8,11 @@ using namespace std;
 class shape
 {
 public:
-	~shape();
-	shape(string *name);	
-	void draw();
-	void set_object(Object *object);
+	shape();
+	virtual ~shape();
+	//shape(string *name);	
+	virtual void draw() = 0;
+//	void set_object(Object *object);
 		
 private:
 	Object *object;

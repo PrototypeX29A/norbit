@@ -5,7 +5,7 @@ class obj_shape : public shape
 public:
 	~obj_shape();
 	obj_shape(string *name);	
-	void draw();
+	virtual void draw();
 	void set_object(Object *object);
 		
 private:

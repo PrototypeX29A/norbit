@@ -25,7 +25,7 @@
 #include <SDL/SDL.h>
 #include <GL/gl.h>
 #include "extra.h"
-#include "game_object.h"
+#include "obj_shape.h"
 #include "physics.h"
 
 using namespace std;
@@ -180,7 +180,7 @@ void init_scene(list<game_object*> *go_list,
 {
 	game_object::set_simulation_world(world);	
 	real const Density = r(1.0);
-	shape* sh = new shape(new string("ptr_mk1.obj"));
+	shape* sh = new obj_shape(new string("ptr_mk1.obj"));
 
 	game_object* ship1 = new game_object();
 	rigid_body * r = world->add_body( Density,10.0f,10.0f);
