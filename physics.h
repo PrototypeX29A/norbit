@@ -43,6 +43,8 @@ Declarations for physics code.
 
 struct rigid_body
 {
+	rigid_body();
+
 	real OneOverMass, OneOverCMMomentOfInertia;
 
 	enum { NumberOfConfigurations = 2 };
@@ -60,15 +62,16 @@ struct rigid_body
 
 	} aConfigurations[NumberOfConfigurations];
 
+	void apply_force(vector_2& F, vector_2& Pl);
+
+	int SourceConfigurationIndex;
+	int TargetConfigurationIndex;
 
 };
 
 class simulation_world
 {
 public:
-
-	int SourceConfigurationIndex;
-	int TargetConfigurationIndex;
 
 	simulation_world( );
 
@@ -116,7 +119,7 @@ private:
 	int CollidingCornerIndex;
 
 
-	void ComputeForces( int ConfigurationIndex );
+	void ComputeForces(  );
 	void Integrate( real DeltaTime );
 
 

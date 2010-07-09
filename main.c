@@ -133,8 +133,8 @@ int main(int argc, char **argv)
 
 /* ----- simulation time ticks ----*/
 
-		static real LastTime = SDL_GetTicks() / 1000;
-		real Time = LastTime + 0.02f;
+		static real LastTime = 0;
+		real Time = LastTime  + 0.0001f;
 		printf("time  %0.4f %0.4f\n", Time, LastTime);
 		world->Simulate(Time - LastTime);
 		world->Render();  // some debug output
@@ -194,7 +194,7 @@ void init_scene(list<game_object*> *go_list,
 	r = world->add_body( 1.0f );
 	ship2->set_rigid_body(r);
 	ship2->set_shape(sh);
-	ship2->set_position(1.0f, 1.8f, -0.0f);
+	ship2->set_position(-1.0f, -20.0f, -0.0f);
 	go_list->push_front(ship2);
 //	world->aBodies.at(0)->aConfigurations[0].CMVelocity = vector_2(0.10f,0.10f);
 //	world->aBodies.at(0)->aConfigurations[0].AngularVelocity = PI;

@@ -1,29 +1,11 @@
 /*----------------------------------------------------------------------------
-
-2D Physics Test Program - a cheesy test harness for 2D physics
-
-by Chris Hecker for my Game Developer Magazine articles.  See my homepage
-for more information.
-
-NOTE: This is a hacked test program, not a nice example of Windows programming.
-physics.cpp the only part of this you should look at!!!
-
-This material is Copyright 1997 Chris Hecker, All Rights Reserved.
-It's for you to read and learn from, not to put in your own articles
-or books or on your website, etc.  Thank you.
-
-Chris Hecker
-checker@d6.com
-http://www.d6.com/users/checker
-
+quite heavily adapted from Chris Hecker's - checker@d6.com - http://www.d6.com/users/checker
 */
 
 /*----------------------------------------------------------------------------
-
 physics.cpp - This file implements the 2D physics simulator.
-
 10/15/96 - checker
-
+july 2010 	ptr_here
 */
 
 #include <assert.h>
@@ -50,8 +32,8 @@ rigid_body* simulation_world::add_body( real Mass )
 
 	// integrate over the body to find the moment of inertia
 
-	const float Width = 100.0;  // TODO: parametrize this instead of using const values
-	const float Height = 100.0;
+	const float Width = 50.0;  // TODO: parametrize this instead of using const values
+	const float Height = 1.0;
 	Body.OneOverCMMomentOfInertia = r(1) / ((Mass / r(12)) *
 		(Width * Width + Height * Height));
 
@@ -71,8 +53,8 @@ simulation_world ctor
 
 */
 
-simulation_world::simulation_world( ) :
-	SourceConfigurationIndex(0), TargetConfigurationIndex(1)
+simulation_world::simulation_world( )
+	
 {
 	WorldSpringAnchor.X = 0.0f;
 	WorldSpringAnchor.Y = 0.0f;
@@ -103,7 +85,7 @@ void simulation_world::Render( void )
 	for(std::vector<rigid_body*>::iterator it = aBodies.begin(); it!=aBodies.end(); ++it, ++i)
 	{
 		rigid_body::configuration &config =
-			(*it)->aConfigurations[SourceConfigurationIndex];
+			(*it)->aConfigurations[(*it)->SourceConfigurationIndex];
 		
 		printf("body %d: position: %0.4f %0.4f orientation: %0.4f \n", 
 		i, config.CMPosition.X, config.CMPosition.Y, config.Orientation);
@@ -127,15 +109,17 @@ void simulation_world::Simulate( real DeltaTime )
 
 	while(CurrentTime < DeltaTime)
 	{
-		ComputeForces(SourceConfigurationIndex);
+		ComputeForces();
 		Integrate(TargetTime-CurrentTime);
 		// we made a successful step, so swap configurations
 		// to "save" the data for the next step
 		CurrentTime = TargetTime;
 		TargetTime = DeltaTime;
-
-		SourceConfigurationIndex = SourceConfigurationIndex ? 0 : 1;
-		TargetConfigurationIndex = TargetConfigurationIndex ? 0 : 1;
+		for(std::vector<rigid_body*>::iterator it = aBodies.begin(); it!=aBodies.end(); ++it)
+		{
+			(*it)->SourceConfigurationIndex = (*it)->SourceConfigurationIndex ? 0 : 1;
+			(*it)->TargetConfigurationIndex = (*it)->TargetConfigurationIndex ? 0 : 1;
+		}	
 	}
 }
 
@@ -145,12 +129,12 @@ ComputeForces - compute forces for gravity, spring, etc.
 
 */
 
-void simulation_world::ComputeForces( int ConfigurationIndex )
+void simulation_world::ComputeForces()
 {
 	for(std::vector<rigid_body*>::iterator it = aBodies.begin(); it!=aBodies.end(); ++it)
 	{
 		rigid_body &Body = **it;
-		rigid_body::configuration &Configuration = Body.aConfigurations[ConfigurationIndex];
+		rigid_body::configuration &Configuration = Body.aConfigurations[(*it)->SourceConfigurationIndex];
 
 		// clear forces
 		Configuration.Torque = r(0);
@@ -160,16 +144,16 @@ void simulation_world::ComputeForces( int ConfigurationIndex )
 	//	BodySpring
 	{
 		rigid_body *Body0 = aBodies.at(0);
-		rigid_body::configuration &Configuration0 = Body0->aConfigurations[ConfigurationIndex];
+		rigid_body::configuration &Configuration0 = Body0->aConfigurations[Body0->SourceConfigurationIndex];
  		matrix_2x2 const Rotation0(Configuration0.Orientation);
-		vector_2 Position0 = Configuration0.CMPosition + Rotation0 * vector_2( 10.0, 10.0);
+		vector_2 Position0 = Configuration0.CMPosition + Rotation0 * vector_2( 1.0, 0.0);
 		vector_2 U0 = Position0 - Configuration0.CMPosition;
 		vector_2 VU0 = Configuration0.CMVelocity + Configuration0.AngularVelocity * GetPerpendicular(U0);
 
 		rigid_body *Body1 = aBodies.at(1);
-		rigid_body::configuration &Configuration1 = Body1->aConfigurations[ConfigurationIndex];
+		rigid_body::configuration &Configuration1 = Body1->aConfigurations[Body1->SourceConfigurationIndex];
  		matrix_2x2 const Rotation1(Configuration1.Orientation);
-		vector_2 Position1 = Configuration1.CMPosition + Rotation1  * vector_2( 10.0, 10.0);
+		vector_2 Position1 = Configuration1.CMPosition + Rotation1  * vector_2( -1.0, 0.0);
 		vector_2 U1 = Position1 - Configuration1.CMPosition;
 		vector_2 VU1 = Configuration1.CMVelocity + Configuration1.AngularVelocity * GetPerpendicular(U1);
 
@@ -237,9 +221,9 @@ void simulation_world::Integrate( real DeltaTime )
 	for(std::vector<rigid_body*>::iterator it = aBodies.begin(); it!=aBodies.end(); ++it)
 	{
 		rigid_body::configuration &Source =
-			(*it)->aConfigurations[SourceConfigurationIndex];
+			(*it)->aConfigurations[(*it)->SourceConfigurationIndex];
 		rigid_body::configuration &Target =
-			(*it)->aConfigurations[TargetConfigurationIndex];
+			(*it)->aConfigurations[(*it)->TargetConfigurationIndex];
 
 		Target.CMPosition = Source.CMPosition +
 				DeltaTime * Source.CMVelocity;
@@ -256,6 +240,16 @@ void simulation_world::Integrate( real DeltaTime )
 	}
 }
 
+
+rigid_body::rigid_body():SourceConfigurationIndex(0), TargetConfigurationIndex(1) {}
+
+void rigid_body::apply_force(vector_2& F, vector_2& Pl){
+
+	aConfigurations[SourceConfigurationIndex].CMForce += F;
+	aConfigurations[SourceConfigurationIndex].Torque += PerpDotProduct(Pl,F) ;
+
+
+}
 
 
 
