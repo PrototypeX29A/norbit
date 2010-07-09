@@ -26,6 +26,7 @@
 #include <GL/gl.h>
 #include "extra.h"
 #include "obj_shape.h"
+#include "sphere_shape.h"
 #include "physics.h"
 #include "control.h"
 
@@ -86,9 +87,17 @@ int main(int argc, char **argv)
 
 	real const Density = r(1.0);
 	shape* sh = new obj_shape(new string("ptr_mk1.obj"));
+	shape* star_shape = new sphere_shape(5.0f);
+
+	game_object* sun = new game_object();
+	rigid_body * r = world->add_body(1000.0f);
+	sun->set_rigid_body(r);
+	sun->set_shape(star_shape);
+	sun->set_position(0.0f, 0.0f, 0.0f);
+	game_objects.push_front(sun);
 
 	game_object* ship1 = new game_object();
-	rigid_body * r = world->add_body( 1.0f );
+	r = world->add_body( 1.0f );
 	ship1->set_rigid_body(r);
 	ship1->set_shape(sh);
 	ship1->set_position(1.0f, 1.0f, 0.0f);
