@@ -27,3 +27,4 @@ test_physics : test_physics.o physics.o
 
 clean:
 	$(RM) *~ $(OBJS) norbit test_obj test_obj.o test_physics test_physics.o
+	$(RM) *.dep
