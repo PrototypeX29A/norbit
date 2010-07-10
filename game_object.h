@@ -41,9 +41,11 @@ public:
 	
 	static void set_simulation_world(simulation_world *w);
 	void apply_force(vector_2 const & F, vector_2 const & Pl);
+	void apply_force_G(vector_2 const & F, vector_2 const & Pl);
 	float posx();
 	float posy();
 	float posz();
+	float mass();
 
 private:
 	shape *object_shape;

@@ -46,6 +46,7 @@ struct rigid_body
 	rigid_body();
 
 	real OneOverMass, OneOverCMMomentOfInertia;
+	float Mass;
 
 	enum { NumberOfConfigurations = 2 };
 
@@ -63,9 +64,11 @@ struct rigid_body
 	} aConfigurations[NumberOfConfigurations];
 
 	void apply_force(vector_2 const & F, vector_2 const & Pl);
+	void apply_force_G(vector_2 const & F, vector_2 const & Pl);
 
 	int SourceConfigurationIndex;
 	int TargetConfigurationIndex;
+
 
 };
 
