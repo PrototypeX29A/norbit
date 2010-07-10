@@ -38,7 +38,6 @@ public:
 	void set_shape(shape *shape);
 	void set_rigid_body(rigid_body*);
 	void set_position(float x, float y, float z);
-	void DrawObject(Object *object) ;
 	
 	static void set_simulation_world(simulation_world *w);
 	void apply_force(vector_2 const & F, vector_2 const & Pl);

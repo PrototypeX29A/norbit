@@ -87,8 +87,7 @@ int main(int argc, char **argv)
 	list<game_object*> game_objects;
 	list<SpaceShipController*> sship_controllers;
 	simulation_world *world = new simulation_world();
-
-	game_object::set_simulation_world(world);	
+	game_object::set_simulation_world(world);
 
 	real const Density = r(1.0);
 	shape* sh = new obj_shape(new string("ptr_mk1.obj"));
@@ -137,7 +136,6 @@ int main(int argc, char **argv)
 						SDL_WM_ToggleFullScreen(screen);
 						break;
 					case SDLK_d:
-
 						control1->toggleEngineL();
 						break;
 					case SDLK_s:

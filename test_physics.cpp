@@ -1,6 +1,7 @@
 
 #include <assert.h>
 #include <stdio.h>
+
 #include "physics.h"
 
 
@@ -30,9 +31,9 @@ int main(int argc, char **argv)
 {
 	// initialize bodies
 	real const Density = r(0.01);
-	World.add_body( Density,r(40),r(20));
-	World.add_body( Density,r(50),r(10));	
-	World.add_body( Density,r(20),r(100));
+	World.add_body( 100.0f);
+	World.add_body( 100.0f);
+	World.add_body( 100.0f);
 
 	World.aBodies.at(0)->aConfigurations[0].CMVelocity = vector_2(r(0.40),r(0.10));
 	World.aBodies.at(2)->aConfigurations[0].AngularVelocity = r(PI);
