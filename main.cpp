@@ -85,7 +85,7 @@ int main(int argc, char **argv)
 
 /* ----- Init scene --------------- */
 	list<game_object*> game_objects;
-	list<SpaceShipController*> sship_controllers;
+	list<Controller*> game_controllers;
 	simulation_world *world = new simulation_world();
 
 	game_object::set_simulation_world(world);	
@@ -93,31 +93,43 @@ int main(int argc, char **argv)
 	real const Density = r(1.0);
 	shape* sh = new obj_shape(new string("ptr_mk1.obj"));
 	shape* star_shape = new sphere_shape(5.0f);
+	for(int i=0; i<10;i++){
+		game_object* sun = new game_object();
+		float rmass = 10.0 + (rand() % 1000);
+		rigid_body * r = world->add_body(100.0f);
+		sun->set_rigid_body(r);
+		sun->set_shape(star_shape);
+		float rx = -50.0 + (rand() % 100);
+		float ry = -50.0 + (rand() % 100);
+		float rz = -50.0 + (rand() % 100);
+		sun->set_position( rx, ry, 0.0f);
+		game_objects.push_front(sun);
 
-	game_object* sun = new game_object();
-	rigid_body * r = world->add_body(1000.0f);
-	sun->set_rigid_body(r);
-	sun->set_shape(star_shape);
-	sun->set_position(0.0f, 0.0f, 0.0f);
-	game_objects.push_front(sun);
+		//GravityController * sungrav = new GravityController(sun,  &game_objects);
+		//game_controllers.push_front(sungrav);
+	}
 
 	game_object* ship1 = new game_object();
-	r = world->add_body( 1.0f );
+	rigid_body * r = world->add_body( 1.0f );
 	ship1->set_rigid_body(r);
 	ship1->set_shape(sh);
 	ship1->set_position(1.0f, 1.0f, 0.0f);
-	SpaceShipController *control1 = new SpaceShipController(ship1);
 	game_objects.push_front(ship1);
-	sship_controllers.push_front(control1);
+	GravityController * gravcontrol1 = new GravityController(ship1,  &game_objects);
+	SpaceShipController *control1 = new SpaceShipController(ship1);
+	game_controllers.push_front(gravcontrol1);
+	game_controllers.push_front(control1);
 
 	game_object* ship2 = new game_object();
 	r = world->add_body( 1.0f );
 	ship2->set_rigid_body(r);
 	ship2->set_shape(sh);
 	ship2->set_position(-1.0f, 1.5f, -0.0f);
-	SpaceShipController *control2 = new SpaceShipController(ship2);
 	game_objects.push_front(ship2);
-	sship_controllers.push_front(control2);
+	GravityController * gravcontrol2 = new GravityController(ship2,  &game_objects);
+	SpaceShipController *control2 = new SpaceShipController(ship2);
+	game_controllers.push_front(gravcontrol2);
+	game_controllers.push_front(control2);
 
 /* ----- Event cycle --------------- */
 	int quit = 0;
@@ -139,9 +151,11 @@ int main(int argc, char **argv)
 					case SDLK_d:
 
 						control1->toggleEngineL();
+						control2->toggleEngineL();
 						break;
 					case SDLK_s:
 						control1->toggleEngineR();
+						control2->toggleEngineR();
 
 						break;
 					default:
@@ -180,7 +194,7 @@ int main(int argc, char **argv)
 		interval = FrameTiming();
 /* apply control movement */
 
-		for(list<SpaceShipController*>::const_iterator it = sship_controllers.begin(); it !=sship_controllers.end(); ++it)
+		for(list<Controller*>::const_iterator it = game_controllers.begin(); it !=game_controllers.end(); ++it)
 		{
 			(*it)->apply();
 		}
@@ -205,8 +219,9 @@ int main(int argc, char **argv)
 		glLoadIdentity();
 		glTranslatef(0.0f, 0.0f, -7.5f); /* Negative Zoom */
 
-		vector_2 mid((ship1->posx() -ship2->posx())/2.0,(ship1->posy() -ship2->posy())/2.0);
-		glTranslatef(mid.X,mid.Y,-sqrt(mid.X*mid.X+mid.Y*mid.Y));
+		vector_2 mid((ship1->posx() +ship2->posx())/2.0,(ship1->posy() +ship2->posy())/2.0);
+		float dist = sqrt(pow(ship1->posx() - ship2->posx(),2)+ pow(ship1->posy() - ship2->posy(),2)+pow(ship1->posz() - ship2->posz(),2));
+		glTranslatef(mid.X,mid.Y,-dist);
 
 /* ----- Light ----- */
 		light1.Position[0] = sinf(angle) * 1.5f;

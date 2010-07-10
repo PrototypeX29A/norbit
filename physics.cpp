@@ -253,21 +253,23 @@ void rigid_body::apply_force(vector_2 const & F, vector_2 const & Pl){
 	aConfigurations[SourceConfigurationIndex].CMForce += Rotation*F;
 	aConfigurations[SourceConfigurationIndex].Torque += PerpDotProduct(Pl,F) ;
 
-	printf("applying total torque: %0.4f  F:  %0.4f  %0.4f \n", 
+/*	printf("applying total torque: %0.4f  F:  %0.4f  %0.4f \n", 
 		aConfigurations[SourceConfigurationIndex].Torque,
 		aConfigurations[SourceConfigurationIndex].CMForce.X,
 		aConfigurations[SourceConfigurationIndex].CMForce.Y);
+*/
 }
 
 //apply the force, specified in global ref
 void rigid_body::apply_force_G(vector_2 const & F, vector_2 const & Pl){
 	aConfigurations[SourceConfigurationIndex].CMForce += F;
 	aConfigurations[SourceConfigurationIndex].Torque += PerpDotProduct(Pl,F) ;
-
+/*
 	printf("applying total torque: %0.4f  F:  %0.4f  %0.4f \n", 
 		aConfigurations[SourceConfigurationIndex].Torque,
 		aConfigurations[SourceConfigurationIndex].CMForce.X,
 		aConfigurations[SourceConfigurationIndex].CMForce.Y);
+*/
 }
 
 
