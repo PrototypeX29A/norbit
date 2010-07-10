@@ -1,8 +1,10 @@
 #include <string>
 
+extern "C" 
+{
 #include "object.h"
+}
 #include "physics.h"
-
 
 using namespace std;
 

@@ -13,6 +13,7 @@
 #include "object.h"
 
 
+
 /* Loads a 3D object in OBJ format */
 Object *LoadObject(char *objfile)
 {
@@ -191,7 +192,7 @@ GLuint LoadTexture(char *tex_name)
 	SDL_Surface *tex_img;
 	glGenTextures(1, &tex_num);
 
-	if(tex_img = (SDL_Surface *) ::IMG_Load(tex_name)) {
+	if(tex_img = (SDL_Surface *) IMG_Load(tex_name)) {
         glBindTexture(GL_TEXTURE_2D, tex_num);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
