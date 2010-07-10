@@ -64,10 +64,20 @@ void game_object::set_rigid_body(rigid_body * b){
 }
 
 
-
+// specified in local coords
 void game_object::apply_force(vector_2 const &F, vector_2 const &Pl){
 	assert(body);
 	body->apply_force(F, Pl);
+}
+
+//apply force, specified in global coords
+void game_object::apply_force_G(vector_2 const &F, vector_2 const &Pl){
+	assert(body);
+	body->apply_force_G(F, Pl);
+}
+
+float game_object::mass(){
+	return body->Mass;
 }
 
 shape::shape()

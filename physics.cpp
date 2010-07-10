@@ -28,6 +28,7 @@ rigid_body* simulation_world::add_body( real Mass )
 	rigid_body* B = new rigid_body();
 	rigid_body &Body = *B;
 
+	Body.Mass = Mass;
 	Body.OneOverMass = r(1) / Mass;
 
 	// integrate over the body to find the moment of inertia
@@ -246,6 +247,7 @@ void simulation_world::Integrate( real DeltaTime )
 
 rigid_body::rigid_body():SourceConfigurationIndex(0), TargetConfigurationIndex(1) {}
 
+//apply force specified in local ref
 void rigid_body::apply_force(vector_2 const & F, vector_2 const & Pl){
 	matrix_2x2 const Rotation( aConfigurations[SourceConfigurationIndex].Orientation);
 	aConfigurations[SourceConfigurationIndex].CMForce += Rotation*F;
@@ -255,8 +257,17 @@ void rigid_body::apply_force(vector_2 const & F, vector_2 const & Pl){
 		aConfigurations[SourceConfigurationIndex].Torque,
 		aConfigurations[SourceConfigurationIndex].CMForce.X,
 		aConfigurations[SourceConfigurationIndex].CMForce.Y);
+}
 
+//apply the force, specified in global ref
+void rigid_body::apply_force_G(vector_2 const & F, vector_2 const & Pl){
+	aConfigurations[SourceConfigurationIndex].CMForce += F;
+	aConfigurations[SourceConfigurationIndex].Torque += PerpDotProduct(Pl,F) ;
 
+	printf("applying total torque: %0.4f  F:  %0.4f  %0.4f \n", 
+		aConfigurations[SourceConfigurationIndex].Torque,
+		aConfigurations[SourceConfigurationIndex].CMForce.X,
+		aConfigurations[SourceConfigurationIndex].CMForce.Y);
 }
 
 
