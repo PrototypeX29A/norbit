@@ -24,13 +24,6 @@ test_obj: test_obj.o object.o physics.o
 	$(LD) $(LDFLAGS) -o test_obj test_obj.o object.o
 test_physics : test_physics.o physics.o
 	$(LD) $(LDFLAGS) -o test_physics test_physics.o physics.o
-object.o: object.c object.h
-	$(CC) $(CFLAGS) -c object.c
-extra.o: extra.c extra.h
-	$(CC) $(CFLAGS) -c extra.c
-shadow.o: shadow.c shadow.h
-	$(CC) $(CFLAGS) -c shadow.c
-test_obj.o: test_obj.c object.h
-	$(CC) $(CFLAGS) -c test_obj.c
+
 clean:
 	$(RM) *~ $(OBJS) norbit test_obj test_obj.o test_physics test_physics.o
