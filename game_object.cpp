@@ -1,7 +1,7 @@
 #include "malloc.h"
 #include "string.h"
 #include "physics.h"
-#include "object.h"
+//#include "object.h"
 #include "shadow.h"
 #include "game_object.h"
 #include <assert.h>
@@ -10,11 +10,6 @@
 simulation_world * game_object::world= NULL;
 
 using namespace std;
-
-
-
-
-
 
 
 void game_object::set_position(float x, float y, float z)
@@ -80,10 +75,5 @@ shape::shape()
 
 shape::~shape()
 {
-	glDeleteTextures(1, &TexId);
-	free(Normals);
-	free(TexCoords);
-	free(Vertices);
-	free(Faces);
 }
 

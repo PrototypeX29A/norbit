@@ -13,8 +13,8 @@
 
 #include "obj_shape.h"
 #include "sphere_shape.h"
-#include "control.h"
-#include "main.h"
+#include "../control.h"
+#include "../main.h"
 
 extern "C" {
 #include <stdlib.h>
@@ -22,7 +22,7 @@ extern "C" {
 #include <SDL/SDL.h>
 #include <GL/gl.h>
 #include "extra.h"
-#include "physics.h"
+#include "../physics.h"
 }
 
 gl_renderer::gl_renderer() {
@@ -183,8 +183,8 @@ int gl_renderer::render() {
 
 
 /* ----- Blitting on the screen --------------- */
+	//current_camera.apply();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-	angle += 0.001f * interval;
 
 	glLoadIdentity();
 	glTranslatef(0.0f, 0.0f, -7.5f); /* Negative Zoom */
@@ -194,6 +194,8 @@ int gl_renderer::render() {
 	glTranslatef(mid.X,mid.Y,-dist);
 
 /* ----- Light ----- */
+	angle += 0.001f * interval;
+
 	light1.Position[0] = sinf(angle) * 1.5f;
 	light1.Position[2] = cosf(angle) * 1.5f;
 

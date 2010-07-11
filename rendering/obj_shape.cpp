@@ -4,6 +4,10 @@
 #include "malloc.h"
 #include "obj_shape.h"
 
+extern "C" {
+#include "object.h"
+}
+
 obj_shape::~obj_shape()
 {
 	glDeleteTextures(1, &TexId);

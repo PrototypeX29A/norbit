@@ -1,5 +1,4 @@
-/* GL_shadow: an implementation of the stencil shadow volume technique
-   Copyright (C) 2005 Angelo "Encelo" Theodorou
+/* Norbit - Fridge in space simulation
  
    This program is free software; you can redistribute it and/or modify
    it under the terms of the GNU General Public License as published by
@@ -19,16 +18,16 @@
 #include <iostream>
 #include <string>
 
-#include "gl_renderer.h"
-#include "obj_shape.h"
-#include "sphere_shape.h"
+#include "rendering/gl_renderer.h"
+#include "rendering/obj_shape.h"
+#include "rendering/sphere_shape.h"
 #include "control.h"
 #include "main.h"
 
 extern "C" {
 #include <stdlib.h>
 #include <math.h>
-#include "extra.h"
+//#include "extra.h"
 #include "physics.h"
 }
 

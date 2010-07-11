@@ -8,7 +8,7 @@
 #ifndef GL_DRAWABLE_H_
 #define GL_DRAWABLE_H_
 
-#include "game_object.h"
+#include "../game_object.h"
 
 class gl_drawable {
 public:

@@ -14,9 +14,17 @@ extern "C" {
 #include "extra.h"
 }
 
-#include "game_object.h"
+#include "../game_object.h"
 #include "gl_drawable.h"
 #include <list>
+
+
+class gl_camera {
+public:
+	virtual void apply();
+};
+
+
 
 class gl_renderer {
 public:
@@ -41,6 +49,7 @@ private:
 	int quit;
 	shape *ship_shape, *star_shape;
 	list<gl_drawable*> *drawables;
+	gl_camera *current_camera;
 };
 
 #endif /* GL_RENDERER_H_ */

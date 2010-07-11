@@ -1,9 +1,5 @@
 #include <string>
 
-extern "C" 
-{
-#include "object.h"
-}
 #include "physics.h"
 
 using namespace std;
@@ -16,19 +12,17 @@ class shape
 public:
 	shape();
 	virtual ~shape();
-	//shape(string *name);	
 	virtual void draw() = 0 ; 
-//	void set_object(Object *object);
 		
 private:
-	Object *object;
-	GLuint TexId;
-	int nFaces;
-	Face *Faces;          /* Array of faces */
-	int nVertices;
-	Point *Vertices;       /* Array of vertex coordinates */
-	Point *TexCoords;     /* Array of texture coordinates */
-	Point *Normals;       /* Array of normal vectors */
+	//Object *object;
+	//GLuint TexId;
+	//int nFaces;
+	//Face *Faces;          /* Array of faces */
+	///int nVertices;
+	//Point *Vertices;       /* Array of vertex coordinates */
+	//Point *TexCoords;     /* Array of texture coordinates */
+	//Point *Normals;       /* Array of normal vectors */
 };
 
 class game_object

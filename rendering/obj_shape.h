@@ -1,4 +1,7 @@
-#include "game_object.h"
+#include "../game_object.h"
+extern "C" {
+#include "object.h"
+}
 
 class obj_shape : public shape 
 {

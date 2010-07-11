@@ -42,7 +42,7 @@ public:
 private:
 	
 	game_object * go;
-	 std::list<game_object*>* go_list;
+	std::list<game_object*>* go_list;
 
 };
 

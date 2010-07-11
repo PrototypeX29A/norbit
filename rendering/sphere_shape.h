@@ -1,4 +1,4 @@
-#include "game_object.h"
+#include "../game_object.h"
 
 class sphere_shape : public shape
 {

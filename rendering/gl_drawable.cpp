@@ -6,6 +6,7 @@
  */
 
 #include "gl_drawable.h"
+#include "GL/gl.h"
 
 gl_drawable::gl_drawable(game_object *go, shape *sh)
 {
