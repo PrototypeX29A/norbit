@@ -4,7 +4,7 @@ LD = g++
 CFLAGS = `sdl-config --cflags` -g  
 LDFLAGS = `sdl-config --libs` -lSDL_image -lGL -lGLU
 RM   = /bin/rm -f
-OBJS = main.o object.o extra.o game_object.o physics.o obj_shape.o control.o sphere_shape.o
+OBJS = main.o object.o extra.o game_object.o physics.o obj_shape.o control.o sphere_shape.o gl_renderer.o
 
 all: norbit test_obj
 
