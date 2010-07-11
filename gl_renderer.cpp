@@ -178,8 +178,6 @@ int gl_renderer::render() {
 		}
 	}
 
-
-
 	interval = FrameTiming();
 /* apply control movement */
 
@@ -187,19 +185,6 @@ int gl_renderer::render() {
 	{
 		(*it)->apply();
 	}
-
-
-/* ----- simulation time ticks ----*/
-
-
-
-	static real LastTime = 0;
-	real Time = LastTime  + 0.0001f;
-//		printf("time  %0.4f %0.4f\n", Time, LastTime);
-	world->Simulate(Time - LastTime);
-//		world->Render();  // some debug output
-	LastTime = Time;
-
 
 /* ----- Blitting on the screen --------------- */
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -230,6 +215,7 @@ int gl_renderer::render() {
 
 	SDL_GL_SwapBuffers();
 	/*		SDL_Delay(25); */ /* Decomment this if you want 1/50th screen update */
+
 	return running;
 }
 

@@ -55,6 +55,13 @@ int main(int argc, char **argv)
 	int running = 1;
 	do {
 		running = renderer->render();
+
+		static real LastTime = 0;
+		real Time = LastTime  + 0.0001f;
+	//		printf("time  %0.4f %0.4f\n", Time, LastTime);
+		world->Simulate(Time - LastTime);
+	//		world->Render();  // some debug output
+		LastTime = Time;
 	} while (running);
 	renderer->stop();
 }
