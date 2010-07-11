@@ -4,7 +4,6 @@
 #include "object.h"
 #include "shadow.h"
 #include "game_object.h"
-#include <GL/gl.h>
 #include <assert.h>
 
 
@@ -13,24 +12,10 @@ simulation_world * game_object::world= NULL;
 using namespace std;
 
 
-void game_object::draw()
-{
-	glPushMatrix();
-	glTranslatef(-posx(),-posy(),-posz());
-	glRotatef(body->aConfigurations[body->SourceConfigurationIndex].Orientation*180.0/PI, 0.0f,0.0f,1.0f);
-	glRotatef(90,1.0f,0.0f,0.0f);	
-	glScalef(0.2f, 0.2f, 0.2f); 
-	object_shape->draw();
-	glPopMatrix();
-}
 
 
 
 
-void game_object::set_shape(shape *s)
-{
-	object_shape = s;
-}
 
 void game_object::set_position(float x, float y, float z)
 {
@@ -54,6 +39,15 @@ float game_object::posy(){
 float game_object::posz(){
 	return 0.0f;
 }
+
+/**
+ * Return orientation in degrees
+ */
+float game_object::orientation()
+{
+	return body->aConfigurations[body->SourceConfigurationIndex].Orientation*180.0/PI;
+}
+
 
 void game_object::set_simulation_world(simulation_world *w){ assert(w); world = w; }
 

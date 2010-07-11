@@ -34,17 +34,16 @@ private:
 class game_object
 {
 public:
-	void draw() ;
-	void set_shape(shape *shape);
 	void set_rigid_body(rigid_body*);
 	void set_position(float x, float y, float z);
 	
 	static void set_simulation_world(simulation_world *w);
-	void apply_force(vector_2 const & F, vector_2 const & Pl);
-	void apply_force_G(vector_2 const & F, vector_2 const & Pl);
+	void apply_force(vector_2 const & F, vector_2 const & Pl); // TODO: Make it fit for 3D
+	void apply_force_G(vector_2 const & F, vector_2 const & Pl); // TODO: Make it fit for 3D
 	float posx();
 	float posy();
 	float posz();
+	float orientation(); // TODO: Make it fit for 3D
 	float mass();
 
 private:

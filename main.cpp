@@ -17,7 +17,6 @@
 */
 
 #include <iostream>
-#include <list>
 #include <string>
 
 #include "gl_renderer.h"
@@ -55,7 +54,10 @@ int main(int argc, char **argv)
 	int running = 1;
 	do {
 		running = renderer->render();
-
+		for(list<Controller*>::const_iterator it = game_controllers.begin(); it !=game_controllers.end(); ++it)
+		{
+			(*it)->apply();
+		}
 		static real LastTime = 0;
 		real Time = LastTime  + 0.0001f;
 	//		printf("time  %0.4f %0.4f\n", Time, LastTime);

@@ -26,17 +26,17 @@ extern "C" {
 }
 
 gl_renderer::gl_renderer() {
-
+	drawables = new list<gl_drawable*>();
 }
 
 void gl_renderer::add_ship(game_object *go)
 {
-		go->set_shape(ship_shape);
+	drawables->push_front(new gl_drawable(go, ship_shape));
 }
 
 void gl_renderer::add_star(game_object *go)
 {
-		go->set_shape(star_shape);
+	drawables->push_front(new gl_drawable(go, star_shape));
 }
 
 void gl_renderer::init()
@@ -181,10 +181,6 @@ int gl_renderer::render() {
 	interval = FrameTiming();
 /* apply control movement */
 
-	for(list<Controller*>::const_iterator it = game_controllers.begin(); it !=game_controllers.end(); ++it)
-	{
-		(*it)->apply();
-	}
 
 /* ----- Blitting on the screen --------------- */
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
@@ -208,7 +204,7 @@ int gl_renderer::render() {
 	UpdateLight(&light2, GL_LIGHT2, 0.1f);
 
 /* ----- Objects ----- */
-	for(list<game_object*>::const_iterator it = game_objects.begin(); it != game_objects.end(); ++it)
+	for(list<gl_drawable*>::const_iterator it = drawables->begin(); it != drawables->end(); ++it)
 	{
 		(*it)->draw();
 	}

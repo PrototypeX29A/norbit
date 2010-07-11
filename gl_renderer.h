@@ -15,6 +15,8 @@ extern "C" {
 }
 
 #include "game_object.h"
+#include "gl_drawable.h"
+#include <list>
 
 class gl_renderer {
 public:
@@ -38,6 +40,7 @@ private:
 	GLfloat angle;
 	int quit;
 	shape *ship_shape, *star_shape;
+	list<gl_drawable*> *drawables;
 };
 
 #endif /* GL_RENDERER_H_ */
