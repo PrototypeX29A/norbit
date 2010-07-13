@@ -12,7 +12,8 @@
 
 class desktop_camera : public camera {
 public:
-	virtual void apply();
+	virtual void apply_rotation();
+	virtual void apply_translation();
 	virtual void active(int i);
 };
 

@@ -23,6 +23,7 @@ extern "C" {
 #include <math.h>
 #include <SDL/SDL.h>
 #include <GL/gl.h>
+#include <GL/glut.h>
 #include "extra.h"
 #include "../physics.h"
 }
@@ -200,7 +201,14 @@ int gl_renderer::render() {
 
 
 /* ----- Blitting on the screen --------------- */
-	current_camera->apply();
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	glLoadIdentity();
+
+	current_camera->apply_rotation();
+	//glutSolidCube(50.0);
+//	draw_skybox(50.0f);
+	current_camera->apply_translation();
+
 
 
 /* ----- Light ----- */
@@ -228,6 +236,112 @@ int gl_renderer::render() {
 }
 
 
+void gl_renderer::draw_skybox(double boxsize)
+{
+/*
+// replace the quad colours with the texture
+	gl.glTexEnvf(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_ENV_MODE, GL.GL_REPLACE);
+	gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR);
+	gl.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR);
+*/
+
+	// SKYBOX UP
+	///textureSkyUP.enable();
+	//textureSkyUP.bind();
+	glColor3f(1.0f, 0.2f, 0.2f);
+	glBegin(GL_QUADS);
+	glNormal3f(0, -1, 0);
+	glTexCoord2f(1,1);
+	glVertex3f(-boxsize, +boxsize, -boxsize);
+	glTexCoord2f(1,0);
+	glVertex3f(-boxsize, +boxsize, +boxsize);
+	glTexCoord2f(0,0);
+	glVertex3f(+boxsize, +boxsize, +boxsize);
+	glTexCoord2f(0,1);
+	glVertex3f(+boxsize, +boxsize, -boxsize);
+	glEnd();
+	/*textureSkyUP.disable();
+
+	// SKYBOX WEST
+	textureSkyWEST.enable();
+	textureSkyWEST.bind(); */
+	glBegin(GL_QUADS);
+	glNormal3f(1, 0, 0);
+	glTexCoord2f(1,1);
+	glVertex3f(-boxsize, -boxsize, +boxsize);
+	glTexCoord2f(1,0);
+	glVertex3f(-boxsize, +boxsize, +boxsize);
+	glTexCoord2f(0,0);
+	glVertex3f(-boxsize, +boxsize, -boxsize);
+	glTexCoord2f(0,1);
+	glVertex3f(-boxsize, -boxsize, -boxsize);
+	glEnd();
+	/*textureSkyWEST.disable();
+
+	// SKYBOX NORTH
+	textureSkyNORTH.enable();
+	textureSkyNORTH.bind();
+	gl.glBegin(GL.GL_QUADS);
+		gl.glNormal3f(0, 0, 1);
+		gl.glTexCoord2f(1,1);
+		gl.glVertex3f(-boxsize, -boxsize, -boxsize);
+		gl.glTexCoord2f(1,0);
+		gl.glVertex3f(-boxsize, +boxsize, -boxsize);
+		gl.glTexCoord2f(0,0);
+		gl.glVertex3f(+boxsize, +boxsize, -boxsize);
+		gl.glTexCoord2f(0,1);
+		gl.glVertex3f(+boxsize, -boxsize, -boxsize);
+	gl.glEnd();
+	textureSkyNORTH.disable();
+
+	// SKYBOX EAST
+	textureSkyEAST.enable();
+	textureSkyEAST.bind();
+	gl.glBegin(GL.GL_QUADS);
+		gl.glNormal3f(-1, 0, 0);
+		gl.glTexCoord2f(1,1);
+		gl.glVertex3f(+boxsize, -boxsize, -boxsize);
+		gl.glTexCoord2f(1,0);
+		gl.glVertex3f(+boxsize, +boxsize, -boxsize);
+		gl.glTexCoord2f(0,0);
+		gl.glVertex3f(+boxsize, +boxsize, +boxsize);
+		gl.glTexCoord2f(0,1);
+		gl.glVertex3f(+boxsize, -boxsize, +boxsize);
+	gl.glEnd();
+	textureSkyEAST.disable();
+
+	// SKYBOX SOUTH
+	textureSkySOUTH.enable();
+	textureSkySOUTH.bind();
+	gl.glBegin(GL.GL_QUADS);
+		gl.glNormal3f(0, 0, -1);
+		gl.glTexCoord2f(1,1);
+		gl.glVertex3f(+boxsize, -boxsize, +boxsize);
+		gl.glTexCoord2f(1,0);
+		gl.glVertex3f(+boxsize, +boxsize, +boxsize);
+		gl.glTexCoord2f(0,0);
+		gl.glVertex3f(-boxsize, +boxsize, +boxsize);
+		gl.glTexCoord2f(0,1);
+		gl.glVertex3f(-boxsize, -boxsize, +boxsize);
+	gl.glEnd();
+	textureSkySOUTH.disable();
+
+	// SKYBOX DOWN
+	textureSkyDOWN.enable();
+	textureSkyDOWN.bind();
+	gl.glBegin(GL.GL_QUADS);
+		gl.glNormal3f(0, 1, 0);
+		gl.glTexCoord2f(1,1);
+		gl.glVertex3f(-boxsize, -boxsize, +boxsize);
+		gl.glTexCoord2f(1,0);
+		gl.glVertex3f(-boxsize, -boxsize, -boxsize);
+		gl.glTexCoord2f(0,0);
+		gl.glVertex3f(+boxsize, -boxsize, -boxsize);
+		gl.glTexCoord2f(0,1);
+		gl.glVertex3f(+boxsize, -boxsize, +boxsize);
+	gl.glEnd();
+	textureSkyDOWN.disable();*/
+}
 
 void gl_renderer::stop()
 {
@@ -239,6 +353,7 @@ gl_renderer::~gl_renderer() {
 
 }
 
-
+/*
 camera::camera() {}
 camera::~camera() {}
+*/

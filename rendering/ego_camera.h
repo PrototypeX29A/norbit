@@ -11,7 +11,8 @@
 #include "gl_renderer.h"
 
 class ego_camera: public camera {
-	virtual void apply();
+	virtual void apply_rotation();
+	virtual void apply_translation();
 	virtual void active(int i);
 };
 

@@ -21,9 +21,10 @@ extern "C" {
 
 class camera {
 public:
-	camera();
-	virtual ~camera();
-	virtual void apply() = 0;
+//	camera();
+//	virtual ~camera();
+	virtual void apply_rotation() = 0;
+	virtual void apply_translation() = 0;
 	virtual void active(int i) = 0;
 };
 
@@ -40,6 +41,7 @@ public:
 	void switch_camera(int cam);
 	virtual ~gl_renderer();
 private:
+	void draw_skybox(double size);
 	int bpp;
 	int flags;
 	int width;
