@@ -58,7 +58,8 @@ int main(int argc, char **argv)
 			(*it)->apply();
 		}
 		static real LastTime = 0;
-		real Time = LastTime  + 0.0001f;
+	//	real Time = LastTime  + 0.0001f;
+		real Time = LastTime  + 0.001f;
 	//		printf("time  %0.4f %0.4f\n", Time, LastTime);
 		world->Simulate(Time - LastTime);
 	//		world->Render();  // some debug output

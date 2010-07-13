@@ -13,16 +13,6 @@ public:
 	shape();
 	virtual ~shape();
 	virtual void draw() = 0 ; 
-		
-private:
-	//Object *object;
-	//GLuint TexId;
-	//int nFaces;
-	//Face *Faces;          /* Array of faces */
-	///int nVertices;
-	//Point *Vertices;       /* Array of vertex coordinates */
-	//Point *TexCoords;     /* Array of texture coordinates */
-	//Point *Normals;       /* Array of normal vectors */
 };
 
 class game_object

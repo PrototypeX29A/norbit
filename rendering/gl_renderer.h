@@ -19,9 +19,12 @@ extern "C" {
 #include <list>
 
 
-class gl_camera {
+class camera {
 public:
-	virtual void apply();
+	camera();
+	virtual ~camera();
+	virtual void apply() = 0;
+	virtual void active(int i) = 0;
 };
 
 
@@ -34,6 +37,7 @@ public:
 	int render();
 	void stop();
 	gl_renderer();
+	void switch_camera(int cam);
 	virtual ~gl_renderer();
 private:
 	int bpp;
@@ -49,7 +53,8 @@ private:
 	int quit;
 	shape *ship_shape, *star_shape;
 	list<gl_drawable*> *drawables;
-	gl_camera *current_camera;
+	camera *current_camera;
+	camera *(game_camera[5]);
 };
 
 #endif /* GL_RENDERER_H_ */

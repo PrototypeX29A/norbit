@@ -2,6 +2,7 @@
 #define MAIN_H_
 
 #include <list>
+#include "control.h"
 
 extern list<game_object*> game_objects;
 //extern list<Controller*> game_controllers;

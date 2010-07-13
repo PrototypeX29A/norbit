@@ -5,7 +5,8 @@ CFLAGS = `sdl-config --cflags` -g
 LDFLAGS = `sdl-config --libs` -lSDL_image -lGL -lGLU
 RM   = /bin/rm -f
 OBJS = main.o game_object.o physics.o control.o $(addprefix rendering/,$(RNDR_OBJS))
-RNDR_OBJS = object.o extra.o sphere_shape.o  gl_renderer.o  gl_drawable.o obj_shape.o
+RNDR_OBJS = object.o extra.o sphere_shape.o  gl_renderer.o gl_drawable.o obj_shape.o \
+desktop_camera.o ego_camera.o
 
 all: norbit test_obj
 

@@ -11,6 +11,8 @@
 #include <list>
 #include <string>
 
+#include "desktop_camera.h"
+#include "ego_camera.h"
 #include "obj_shape.h"
 #include "sphere_shape.h"
 #include "../control.h"
@@ -39,16 +41,26 @@ void gl_renderer::add_star(game_object *go)
 	drawables->push_front(new gl_drawable(go, star_shape));
 }
 
+void gl_renderer::switch_camera(int cam)
+{
+	current_camera = game_camera[cam];
+}
+
 void gl_renderer::init()
 {
 	const SDL_VideoInfo* info = NULL;
 	bpp = 0;
 	flags = SDL_OPENGL | SDL_RESIZABLE;
-	width = 640;
-	height = 480;
+	//width = 640;
+	//height = 480;
+	width = 1024;
+	height = 786;
 	angle = 0;
 
 	GLint stencil = 0;
+
+	current_camera = game_camera[0] = new desktop_camera();
+	game_camera[1] = new ego_camera();
 
 
 	/* ----- SDL init --------------- */
@@ -145,7 +157,12 @@ int gl_renderer::render() {
 				case SDLK_s:
 					control1->toggleEngineR();
 					control2->toggleEngineR();
-
+					break;
+				case SDLK_1:
+					switch_camera(0);
+					break;
+				case SDLK_2:
+					switch_camera(1);
 					break;
 				default:
 					break;
@@ -156,12 +173,12 @@ int gl_renderer::render() {
 					fprintf(stderr, "Video resize failed: %s\n", SDL_GetError());
 					exit(-1);
 				}
-				{glPushAttrib(GL_TRANSFORM_BIT);
+				glPushAttrib(GL_TRANSFORM_BIT);
 				glMatrixMode(GL_PROJECTION);
 				glLoadIdentity();
 				perspectiveGL(90.0f, (GLfloat)event.resize.w/(GLfloat)event.resize.h, 0.1f, 10000.0f);
 				glViewport(0.0f, 0.0f, event.resize.w, event.resize.h);
-				glPopAttrib();}
+				glPopAttrib();
 				break;
 			case SDL_ACTIVEEVENT:
 				if(event.active.state != SDL_APPMOUSEFOCUS && event.active.gain == 0)
@@ -183,15 +200,8 @@ int gl_renderer::render() {
 
 
 /* ----- Blitting on the screen --------------- */
-	//current_camera.apply();
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	current_camera->apply();
 
-	glLoadIdentity();
-	glTranslatef(0.0f, 0.0f, -7.5f); /* Negative Zoom */
-
-	vector_2 mid((ship1->posx() +ship2->posx())/2.0,(ship1->posy() +ship2->posy())/2.0);
-	float dist = sqrt(pow(ship1->posx() - ship2->posx(),2)+ pow(ship1->posy() - ship2->posy(),2)+pow(ship1->posz() - ship2->posz(),2));
-	glTranslatef(mid.X,mid.Y,-dist);
 
 /* ----- Light ----- */
 	angle += 0.001f * interval;
@@ -218,6 +228,7 @@ int gl_renderer::render() {
 }
 
 
+
 void gl_renderer::stop()
 {
 	SDL_Quit();
@@ -229,3 +240,5 @@ gl_renderer::~gl_renderer() {
 }
 
 
+camera::camera() {}
+camera::~camera() {}
