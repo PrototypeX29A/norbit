@@ -15,6 +15,7 @@ extern "C" {
 }
 
 #include "../game_object.h"
+#include "skybox.h"
 #include "gl_drawable.h"
 #include <list>
 
@@ -57,6 +58,7 @@ private:
 	list<gl_drawable*> *drawables;
 	camera *current_camera;
 	camera *(game_camera[5]);
+	skybox *background_stars;
 };
 
 #endif /* GL_RENDERER_H_ */
