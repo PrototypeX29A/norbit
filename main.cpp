@@ -48,8 +48,8 @@ int main(int argc, char **argv)
 	gl_renderer *renderer = new gl_renderer();
 	renderer->init();
 	init_scene(renderer);
-	renderer->add_ship(ship1);
-	renderer->add_ship(ship2);
+	renderer->add_ship(ship1, 1);
+	renderer->add_ship(ship2, 2);
 	int running = 1;
 	do {
 		running = renderer->render();

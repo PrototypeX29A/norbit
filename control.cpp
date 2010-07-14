@@ -19,10 +19,10 @@ void SpaceShipController::toggleEngineR(){
 }
 
 void SpaceShipController::apply(){
-	if (engine_L) {
+	if (engine_R) {
 		go->apply_force( vector_2(-0.1f,-1.0f), vector_2(-100.0f,-0.10f)); // pushes upward
 	}
-	if(engine_R) {
+	if(engine_L) {
 		go->apply_force( vector_2(-0.1f,-1.0f), vector_2(100.0f,-0.10f)); // pushes upward
 	}
 }

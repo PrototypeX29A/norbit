@@ -34,7 +34,7 @@ public:
 class gl_renderer {
 public:
 	void init();
-	void add_ship(game_object *go);
+	void add_ship(game_object *go, int cam);
 	void add_star(game_object *go);
 	int render();
 	void stop();
