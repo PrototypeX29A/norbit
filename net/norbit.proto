@@ -1,0 +1,17 @@
+message norbitnet_GOPHY{
+  required int32 id = 1;
+  optional string name = 2;
+  required float posx=3;
+  required float posy=4;
+  required float posz=5;
+  required float velx=6;
+  required float vely=7;
+}
+
+
+message norbitnet_SSControllerState{
+  required int32 id = 1;
+  optional string name = 2;
+  required bool toggleEngineL=3;
+  required bool toggleEngineR=4;
+}
