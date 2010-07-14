@@ -8,7 +8,6 @@
 #include <SDL/SDL.h>
 #include <GL/gl.h>
 #include "extra.h"
-#include "object.h"
 
 
 /* Calculate frame interval and print FPS each 5s */

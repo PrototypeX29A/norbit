@@ -48,7 +48,7 @@ list < Controller * >game_controllers;
 game_object *ship1, *ship2;
 simulation_world *world;
 SpaceShipController *control1, *control2;
-zmq::context_t ctx (1, 1, 0);
+zmq::context_t ctx (1);
 zmq::socket_t control_socket (ctx, ZMQ_REQ);	// send input to srver
 zmq::socket_t control_socket2 (ctx, ZMQ_REQ);	// send input to srver
 

@@ -18,7 +18,7 @@ public:
 private:
 		double boxsize;
 		GLuint up,down,north,east, south, west;
-    GLuint load_texture(const char *filename);
+		GLuint load_texture(const char *filename);
 };
 
 #endif /* SKYBOX_H_ */
