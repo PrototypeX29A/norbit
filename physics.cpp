@@ -13,37 +13,44 @@ july 2010 	ptr_here
 #include <vector>
 #include "physics.h"
 
- real const simulation_world::Kws;			// Hooke's spring constant
- real const simulation_world::Kwd;			// damping constant
- real const simulation_world::Kbs;			// Hooke's spring constant
- real const simulation_world::Kbd ;			// damping constant
- real const simulation_world::Kdl;		// linear damping factor
- real const simulation_world::Kda;		// angular damping factor
+real const
+  simulation_world::Kws;	// Hooke's spring constant
+real const
+  simulation_world::Kwd;	// damping constant
+real const
+  simulation_world::Kbs;	// Hooke's spring constant
+real const
+  simulation_world::Kbd;	// damping constant
+real const
+  simulation_world::Kdl;	// linear damping factor
+real const
+  simulation_world::Kda;	// angular damping factor
 
 
 //helper func
 
-rigid_body* simulation_world::add_body( real Mass )
-{	
-	rigid_body* B = new rigid_body();
-	rigid_body &Body = *B;
+rigid_body *
+simulation_world::add_body (real Mass)
+{
+  rigid_body *B = new rigid_body ();
+  rigid_body & Body = *B;
 
-	Body.Mass = Mass;
-	Body.OneOverMass = r(1) / Mass;
+  Body.Mass = Mass;
+  Body.OneOverMass = r (1) / Mass;
 
-	// integrate over the body to find the moment of inertia
+  // integrate over the body to find the moment of inertia
 
-	const float Width = 50.0;  // TODO: parametrize this instead of using const values
-	const float Height = 1.0;
-	Body.OneOverCMMomentOfInertia = r(1) / ((Mass / r(12)) *
-		(Width * Width + Height * Height));
+  const float Width = 50.0;	// TODO: parametrize this instead of using const values
+  const float Height = 1.0;
+  Body.OneOverCMMomentOfInertia = r (1) / ((Mass / r (12)) *
+					   (Width * Width + Height * Height));
 
-	// 0-out non-vector quantities
-	Body.aConfigurations[0].Orientation = r(0);
-	Body.aConfigurations[0].AngularVelocity = r(0);
-	Body.aConfigurations[0].Torque = r(0);
-	aBodies.push_back(B);
-	return B;
+  // 0-out non-vector quantities
+  Body.aConfigurations[0].Orientation = r (0);
+  Body.aConfigurations[0].AngularVelocity = r (0);
+  Body.aConfigurations[0].Torque = r (0);
+  aBodies.push_back (B);
+  return B;
 }
 
 
@@ -54,11 +61,10 @@ simulation_world ctor
 
 */
 
-simulation_world::simulation_world( )
-	
+simulation_world::simulation_world ()
 {
-	WorldSpringAnchor.X = 0.0f;
-	WorldSpringAnchor.Y = 0.0f;
+  WorldSpringAnchor.X = 0.0f;
+  WorldSpringAnchor.Y = 0.0f;
 }
 
 /*----------------------------------------------------------------------------
@@ -67,7 +73,7 @@ simulation_world dtor
 
 */
 
-simulation_world::~simulation_world( void )
+simulation_world::~simulation_world (void)
 {
 
 }
@@ -78,20 +84,23 @@ Render - render the source configurations
 
 */
 
-void simulation_world::Render( void )
+void
+simulation_world::Render (void)
 {
 
-	// draw bodies
-	int i = 0;
-	for(std::vector<rigid_body*>::iterator it = aBodies.begin(); it!=aBodies.end(); ++it, ++i)
-	{
-		rigid_body::configuration &config =
-			(*it)->aConfigurations[(*it)->SourceConfigurationIndex];
-		
-		printf("body %d: position: %0.4f %0.4f orientation: %0.4f \n", 
-		i, config.CMPosition.X, config.CMPosition.Y, config.Orientation);
-	
-	}
+  // draw bodies
+  int i = 0;
+  for (std::vector < rigid_body * >::iterator it = aBodies.begin ();
+       it != aBodies.end (); ++it, ++i)
+    {
+      rigid_body::configuration & config =
+	(*it)->aConfigurations[(*it)->SourceConfigurationIndex];
+
+      printf ("body %d: position: %0.4f %0.4f orientation: %0.4f \n",
+	      i, config.CMPosition.X, config.CMPosition.Y,
+	      config.Orientation);
+
+    }
 }
 
 
@@ -103,27 +112,31 @@ Simulate - Integrate forward DeltaTime seconds.
 
 */
 
-void simulation_world::Simulate( real DeltaTime )
+void
+simulation_world::Simulate (real DeltaTime)
 {
-	real CurrentTime = r(0);
-	real TargetTime = DeltaTime;
+  real CurrentTime = r (0);
+  real TargetTime = DeltaTime;
 
-	while(CurrentTime < DeltaTime)
+  while (CurrentTime < DeltaTime)
+    {
+      //ComputeForces();
+      Integrate (TargetTime - CurrentTime);
+      // we made a successful step, so swap configurations
+      // to "save" the data for the next step
+      CurrentTime = TargetTime;
+      TargetTime = DeltaTime;
+      ResetForces ();
+      for (std::vector < rigid_body * >::iterator it = aBodies.begin ();
+	   it != aBodies.end (); ++it)
 	{
-		//ComputeForces();
-		Integrate(TargetTime-CurrentTime);
-		// we made a successful step, so swap configurations
-		// to "save" the data for the next step
-		CurrentTime = TargetTime;
-		TargetTime = DeltaTime;
-		ResetForces();
-		for(std::vector<rigid_body*>::iterator it = aBodies.begin(); it!=aBodies.end(); ++it)
-		{
-			(*it)->SourceConfigurationIndex = (*it)->SourceConfigurationIndex ? 0 : 1;
-			(*it)->TargetConfigurationIndex = (*it)->TargetConfigurationIndex ? 0 : 1;
-		}	
-	
+	  (*it)->SourceConfigurationIndex =
+	    (*it)->SourceConfigurationIndex ? 0 : 1;
+	  (*it)->TargetConfigurationIndex =
+	    (*it)->TargetConfigurationIndex ? 0 : 1;
 	}
+
+    }
 }
 
 /*----------------------------------------------------------------------------
@@ -132,17 +145,20 @@ ComputeForces - compute forces for gravity, spring, etc.
 
 */
 
-void simulation_world::ResetForces()
+void
+simulation_world::ResetForces ()
 {
-	for(std::vector<rigid_body*>::iterator it = aBodies.begin(); it!=aBodies.end(); ++it)
-	{
-		rigid_body &Body = **it;
-		rigid_body::configuration &Configuration = Body.aConfigurations[(*it)->SourceConfigurationIndex];
+  for (std::vector < rigid_body * >::iterator it = aBodies.begin ();
+       it != aBodies.end (); ++it)
+    {
+      rigid_body & Body = **it;
+      rigid_body::configuration & Configuration =
+	Body.aConfigurations[(*it)->SourceConfigurationIndex];
 
-		// clear forces
-		Configuration.Torque = r(0);
-		Configuration.CMForce = vector_2(r(0),r(0));
-	}
+      // clear forces
+      Configuration.Torque = r (0);
+      Configuration.CMForce = vector_2 (r (0), r (0));
+    }
 /*
 	//	BodySpring
 	{
@@ -206,7 +222,7 @@ void simulation_world::ResetForces()
 		Configuration.Torque += PerpDotProduct(U,Spring);
 	}
 */
-}	
+}
 
 
 
@@ -220,38 +236,44 @@ Integrate - integrate the rigid body configurations forward in time from
 
 */
 
-void simulation_world::Integrate( real DeltaTime )
+void
+simulation_world::Integrate (real DeltaTime)
 {
-	for(std::vector<rigid_body*>::iterator it = aBodies.begin(); it!=aBodies.end(); ++it)
-	{
-		rigid_body::configuration &Source =
-			(*it)->aConfigurations[(*it)->SourceConfigurationIndex];
-		rigid_body::configuration &Target =
-			(*it)->aConfigurations[(*it)->TargetConfigurationIndex];
+  for (std::vector < rigid_body * >::iterator it = aBodies.begin ();
+       it != aBodies.end (); ++it)
+    {
+      rigid_body::configuration & Source =
+	(*it)->aConfigurations[(*it)->SourceConfigurationIndex];
+      rigid_body::configuration & Target =
+	(*it)->aConfigurations[(*it)->TargetConfigurationIndex];
 
-		Target.CMPosition = Source.CMPosition +
-				DeltaTime * Source.CMVelocity;
+      Target.CMPosition = Source.CMPosition + DeltaTime * Source.CMVelocity;
 
-		Target.Orientation = Source.Orientation +
-				DeltaTime * Source.AngularVelocity;
+      Target.Orientation = Source.Orientation +
+	DeltaTime * Source.AngularVelocity;
 
-		Target.CMVelocity = Source.CMVelocity +
-				(DeltaTime * (*it)->OneOverMass) * Source.CMForce;
+      Target.CMVelocity = Source.CMVelocity +
+	(DeltaTime * (*it)->OneOverMass) * Source.CMForce;
 
-		Target.AngularVelocity = Source.AngularVelocity +
-				(DeltaTime * (*it)->OneOverCMMomentOfInertia) *
-					Source.Torque;
-	}
+      Target.AngularVelocity = Source.AngularVelocity +
+	(DeltaTime * (*it)->OneOverCMMomentOfInertia) * Source.Torque;
+    }
 }
 
 
-rigid_body::rigid_body():SourceConfigurationIndex(0), TargetConfigurationIndex(1) {}
+rigid_body::rigid_body ():SourceConfigurationIndex (0),
+TargetConfigurationIndex (1)
+{
+}
 
 //apply force specified in local ref
-void rigid_body::apply_force(vector_2 const & F, vector_2 const & Pl){
-	matrix_2x2 const Rotation( aConfigurations[SourceConfigurationIndex].Orientation);
-	aConfigurations[SourceConfigurationIndex].CMForce += Rotation*F;
-	aConfigurations[SourceConfigurationIndex].Torque += PerpDotProduct(Pl,F) ;
+void
+rigid_body::apply_force (vector_2 const &F, vector_2 const &Pl)
+{
+  matrix_2x2 const Rotation (aConfigurations[SourceConfigurationIndex].
+			     Orientation);
+  aConfigurations[SourceConfigurationIndex].CMForce += Rotation * F;
+  aConfigurations[SourceConfigurationIndex].Torque += PerpDotProduct (Pl, F);
 
 /*	printf("applying total torque: %0.4f  F:  %0.4f  %0.4f \n", 
 		aConfigurations[SourceConfigurationIndex].Torque,
@@ -261,9 +283,11 @@ void rigid_body::apply_force(vector_2 const & F, vector_2 const & Pl){
 }
 
 //apply the force, specified in global ref
-void rigid_body::apply_force_G(vector_2 const & F, vector_2 const & Pl){
-	aConfigurations[SourceConfigurationIndex].CMForce += F;
-	aConfigurations[SourceConfigurationIndex].Torque += PerpDotProduct(Pl,F) ;
+void
+rigid_body::apply_force_G (vector_2 const &F, vector_2 const &Pl)
+{
+  aConfigurations[SourceConfigurationIndex].CMForce += F;
+  aConfigurations[SourceConfigurationIndex].Torque += PerpDotProduct (Pl, F);
 /*
 	printf("applying total torque: %0.4f  F:  %0.4f  %0.4f \n", 
 		aConfigurations[SourceConfigurationIndex].Torque,
@@ -271,6 +295,3 @@ void rigid_body::apply_force_G(vector_2 const & F, vector_2 const & Pl){
 		aConfigurations[SourceConfigurationIndex].CMForce.Y);
 */
 }
-
-
-

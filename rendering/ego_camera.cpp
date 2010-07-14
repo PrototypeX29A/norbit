@@ -8,18 +8,28 @@
 #include "ego_camera.h"
 #include "../main.h"
 
-void ego_camera::apply()
+ego_camera::ego_camera(game_object *go, float x, float y, float z)
 {
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-	glLoadIdentity();
-	glTranslatef(0.0f, 0.2f, 0.0f);
-//	glRotatef(90.0f, 0.0f, 1.0f, 0.0f);
-	glRotatef(-90.0f, 1.0f, 0.0f, 0.0f);
-	glRotatef(-ship1->orientation(), 0.0f,0.0f,1.0f);
-	glTranslatef(ship1->posx(), ship1->posy(), ship1->posz());
+	this->go = go;
+	offsetx = x;
+	offsety = y;
+	offsetz = z;
 }
 
+void ego_camera::apply_rotation()
+{
+	//glRotatef(180.0f, 0.0, 1.0f, 0.0f);
+	glRotatef(-90.0f, 1.0f, 0.0f, 0.0f);
+	glRotatef(-go->orientation(), 0.0f,0.0f,1.0f);
+}
 
+void ego_camera::apply_translation()
+{
+	glRotatef(go->orientation(), 0.0f,0.0f,1.0f);
+	glTranslatef(offsetx, offsety, offsetz);
+	glRotatef(-go->orientation(), 0.0f,0.0f,1.0f);
+ 	glTranslatef(go->posx(), go->posy(), go->posz());
+}
 
 void ego_camera::active(int i)
 {

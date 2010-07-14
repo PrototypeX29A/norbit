@@ -4,7 +4,7 @@
 #include <list>
 #include "control.h"
 
-extern list<game_object*> game_objects;
+extern list < game_object * >game_objects;
 //extern list<Controller*> game_controllers;
 extern game_object *ship1, *ship2;
 extern simulation_world *world;

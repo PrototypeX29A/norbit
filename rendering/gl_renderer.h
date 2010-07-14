@@ -15,15 +15,17 @@ extern "C" {
 }
 
 #include "../game_object.h"
+#include "skybox.h"
 #include "gl_drawable.h"
 #include <list>
 
 
 class camera {
 public:
-	camera();
-	virtual ~camera();
-	virtual void apply() = 0;
+//	camera();
+//	virtual ~camera();
+	virtual void apply_rotation() = 0;
+	virtual void apply_translation() = 0;
 	virtual void active(int i) = 0;
 };
 
@@ -32,7 +34,7 @@ public:
 class gl_renderer {
 public:
 	void init();
-	void add_ship(game_object *go);
+	void add_ship(game_object *go, int cam);
 	void add_star(game_object *go);
 	int render();
 	void stop();
@@ -40,6 +42,7 @@ public:
 	void switch_camera(int cam);
 	virtual ~gl_renderer();
 private:
+	void draw_skybox(double size);
 	int bpp;
 	int flags;
 	int width;
@@ -55,6 +58,7 @@ private:
 	list<gl_drawable*> *drawables;
 	camera *current_camera;
 	camera *(game_camera[5]);
+	skybox *background_stars;
 };
 
 #endif /* GL_RENDERER_H_ */

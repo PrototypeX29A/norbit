@@ -43,31 +43,32 @@ Declarations for physics code.
 
 struct rigid_body
 {
-	rigid_body();
+  rigid_body ();
 
-	real OneOverMass, OneOverCMMomentOfInertia;
-	float Mass;
+  real OneOverMass, OneOverCMMomentOfInertia;
+  float Mass;
 
-	enum { NumberOfConfigurations = 2 };
+  enum
+  { NumberOfConfigurations = 2 };
 
-	struct configuration
-	{
-		vector_2 CMPosition;
-		real Orientation;
+  struct configuration
+  {
+    vector_2 CMPosition;
+    real Orientation;
 
-		vector_2 CMVelocity;
-		real AngularVelocity;
+    vector_2 CMVelocity;
+    real AngularVelocity;
 
-		vector_2 CMForce;
-		real Torque;
+    vector_2 CMForce;
+    real Torque;
 
-	} aConfigurations[NumberOfConfigurations];
+  } aConfigurations[NumberOfConfigurations];
 
-	void apply_force(vector_2 const & F, vector_2 const & Pl);
-	void apply_force_G(vector_2 const & F, vector_2 const & Pl);
+  void apply_force (vector_2 const &F, vector_2 const &Pl);
+  void apply_force_G (vector_2 const &F, vector_2 const &Pl);
 
-	int SourceConfigurationIndex;
-	int TargetConfigurationIndex;
+  int SourceConfigurationIndex;
+  int TargetConfigurationIndex;
 
 
 };
@@ -76,13 +77,13 @@ class simulation_world
 {
 public:
 
-	simulation_world( );
+  simulation_world ();
 
-	void Simulate( real DeltaTime );
-	void Render( void );
-	rigid_body* add_body( real Mass );
-	
-	~simulation_world( void );
+  void Simulate (real DeltaTime);
+  void Render (void);
+  rigid_body *add_body (real Mass);
+
+   ~simulation_world (void);
 
 
 	/*----------------------------------------------------------------------------
@@ -91,39 +92,42 @@ public:
 	*/
 
 
-	// World Spring		
-	vector_2 WorldSpringAnchor;
-	static real const Kws = 3.0f;			// Hooke's spring constant
-	static real const Kwd = 0.5f;	
+  // World Spring         
+  vector_2 WorldSpringAnchor;
+  static real const Kws = 3.0f;	// Hooke's spring constant
+  static real const Kwd = 0.5f;
 
-	//BodySpring
-	static real const Kbs = 1.0f;			// Hooke's spring constant
-	static real const Kbd = 0.5f;			// damping constant
-	
+  //BodySpring
+  static real const Kbs = 1.0f;	// Hooke's spring constant
+  static real const Kbd = 0.5f;	// damping constant
 
-	// Damping
-	static real const Kdl = 2.50f;		// linear damping factor
-	static real const Kda = 140.0f;		// angular damping factor
 
-	std::vector<rigid_body*> aBodies;
-	int NumberOfBodies() { return aBodies.size(); }
+  // Damping
+  static real const Kdl = 2.50f;	// linear damping factor
+  static real const Kda = 140.0f;	// angular damping factor
+
+    std::vector < rigid_body * >aBodies;
+  int NumberOfBodies ()
+  {
+    return aBodies.size ();
+  }
 
 private:
 
-	enum collision_state
-	{
-		Penetrating,
-		Colliding,
-		Clear
-	} CollisionState;
+  enum collision_state
+  {
+    Penetrating,
+    Colliding,
+    Clear
+  } CollisionState;
 
-	vector_2 CollisionNormal;
-	int CollidingBodyIndex;
-	int CollidingCornerIndex;
+  vector_2 CollisionNormal;
+  int CollidingBodyIndex;
+  int CollidingCornerIndex;
 
 
-	void ResetForces(  );
-	void Integrate( real DeltaTime );
+  void ResetForces ();
+  void Integrate (real DeltaTime);
 
 
 };

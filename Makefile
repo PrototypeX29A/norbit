@@ -1,12 +1,14 @@
 CC = gcc
 CXX = g++
 LD = g++
-CFLAGS = `sdl-config --cflags` -g  `pkg-config --libs --cflags libzmq`  -g   
-LDFLAGS = `sdl-config --libs` -lSDL_image -lGL -lGLU `pkg-config --libs --cflags libzmq` -lprotobuf -lpthread
+CFLAGS_NET = `pkg-config --libs --cflags libzmq`  -g   
+CFLAGS = `sdl-config --cflags` $(CFLAGS_NET) -g  
+LDFLAGS_NET =`pkg-config --libs --cflags libzmq` -lprotobuf -lpthread
+LDFLAGS = `sdl-config --libs` -lSDL_image -lGL -lGLU  $(LDFLAGS_NET)
 RM   = /bin/rm -f
 OBJS =  game_object.o physics.o control.o $(addprefix rendering/,$(RNDR_OBJS))
 RNDR_OBJS = object.o extra.o sphere_shape.o  gl_renderer.o gl_drawable.o obj_shape.o \
-desktop_camera.o ego_camera.o
+desktop_camera.o ego_camera.o skybox.o
 NET_OBJS = net/norbit.pb.o net/netcontrol.o
 
 all: norbit test_obj norbit_client norbit_server

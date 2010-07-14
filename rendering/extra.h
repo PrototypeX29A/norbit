@@ -19,7 +19,6 @@ typedef struct Light {
 
 
 int FrameTiming(void);
-void perspectiveGL(GLdouble fovY, GLdouble aspect, GLdouble zNear, GLdouble zFar);
 void DrawRoom(void);
 void UpdateLight(Light *light, GLint gl_light, GLfloat size);
 void VMatMult(GLfloat M[16], GLfloat v[4]);

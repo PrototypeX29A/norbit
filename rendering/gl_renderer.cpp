@@ -23,6 +23,8 @@ extern "C" {
 #include <math.h>
 #include <SDL/SDL.h>
 #include <GL/gl.h>
+#include <GL/glu.h>
+#include <GL/glut.h>
 #include "extra.h"
 #include "../physics.h"
 }
@@ -31,9 +33,11 @@ gl_renderer::gl_renderer() {
 	drawables = new list<gl_drawable*>();
 }
 
-void gl_renderer::add_ship(game_object *go)
+void gl_renderer::add_ship(game_object *go, int cam)
 {
 	drawables->push_front(new gl_drawable(go, ship_shape));
+	game_camera[cam] = new ego_camera(go, 0.0f, -0.4f, -0.15f);
+
 }
 
 void gl_renderer::add_star(game_object *go)
@@ -57,10 +61,10 @@ void gl_renderer::init()
 	height = 786;
 	angle = 0;
 
+
 	GLint stencil = 0;
 
 	current_camera = game_camera[0] = new desktop_camera();
-	game_camera[1] = new ego_camera();
 
 
 	/* ----- SDL init --------------- */
@@ -108,7 +112,7 @@ void gl_renderer::init()
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	/* The following function replaces gluPerspective */
-	perspectiveGL(45.0f, (GLfloat)width/(GLfloat)height, 0.001f, 100.0f);
+	gluPerspective(45.0f, (GLfloat)width/(GLfloat)height, 0.001f, 100000.0f);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 	glEnable(GL_TEXTURE_2D);
@@ -125,6 +129,9 @@ void gl_renderer::init()
 
 	ship_shape = new obj_shape(new string("ptr_mk1.obj"));
 	star_shape = new sphere_shape(5.0f);
+
+	background_stars = new skybox();
+	background_stars->init(200.0f);
 
 }
 
@@ -150,19 +157,27 @@ int gl_renderer::render() {
 				case SDLK_F1:
 					SDL_WM_ToggleFullScreen(screen);
 					break;
-				case SDLK_d:
+				case SDLK_s:
 					control1->toggleEngineL();
+					break;
+				case SDLK_d:
+					control1->toggleEngineR();
+					break;
+				case SDLK_k:
 					control2->toggleEngineL();
 					break;
-				case SDLK_s:
-					control1->toggleEngineR();
+				case SDLK_l:
 					control2->toggleEngineR();
 					break;
+
 				case SDLK_1:
 					switch_camera(0);
 					break;
 				case SDLK_2:
 					switch_camera(1);
+					break;
+				case SDLK_3:
+					switch_camera(2);
 					break;
 				default:
 					break;
@@ -176,7 +191,7 @@ int gl_renderer::render() {
 				glPushAttrib(GL_TRANSFORM_BIT);
 				glMatrixMode(GL_PROJECTION);
 				glLoadIdentity();
-				perspectiveGL(90.0f, (GLfloat)event.resize.w/(GLfloat)event.resize.h, 0.1f, 10000.0f);
+				gluPerspective(90.0f, (GLfloat)event.resize.w/(GLfloat)event.resize.h, 0.1, 100000.0);
 				glViewport(0.0f, 0.0f, event.resize.w, event.resize.h);
 				glPopAttrib();
 				break;
@@ -200,7 +215,15 @@ int gl_renderer::render() {
 
 
 /* ----- Blitting on the screen --------------- */
-	current_camera->apply();
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+	glLoadIdentity();
+
+	current_camera->apply_rotation();
+	//glutSolidCube(50.0);
+	//draw_skybox(200.0);
+	background_stars->draw();
+	current_camera->apply_translation();
+
 
 
 /* ----- Light ----- */
@@ -239,6 +262,7 @@ gl_renderer::~gl_renderer() {
 
 }
 
-
+/*
 camera::camera() {}
 camera::~camera() {}
+*/
