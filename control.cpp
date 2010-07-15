@@ -36,6 +36,7 @@ bool SpaceShipController::getEngineR ()const {return engine_R;};
 
 
 void SpaceShipController::apply(){
+	assert(go);
 	if (engine_R) {
 		go->apply_force( vector_2(-0.1f,-1.0f), vector_2(-100.0f,-0.10f)); // pushes upward
 	}

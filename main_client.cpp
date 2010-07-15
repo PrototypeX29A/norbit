@@ -43,7 +43,8 @@ void init_sdl (SDL_Surface ** screen, int bpp, int flags, int width,
 	       int height);
 void init_scene (gl_renderer * renderer);
 
-list < game_object * >game_objects;
+map<int, game_object*>game_objects_map;
+list<game_object*>game_objects;
 list < Controller * >game_controllers;
 game_object *ship1, *ship2;
 simulation_world *world;
@@ -89,8 +90,19 @@ main (int argc, char **argv)
 	// Receive and display the result
        zmq::message_t resultset;
        while (publish_socket.recv (&resultset,ZMQ_NOBLOCK)) {
-                  const char *resultset_string = (const char *)resultset.data ();
-                  printf ("Received response: '%s'\n", resultset_string);
+	norbitnet_GOPHY gophy;
+	std::string msgstr(reinterpret_cast<const char *>(resultset.data() ), resultset.size()); 
+ 	gophy.ParseFromString(msgstr);
+			
+	 game_object* g = game_objects_map[gophy.id()];
+	rigid_body * r = g->physics();
+	r->aConfigurations[r->SourceConfigurationIndex].CMPosition.X = gophy.posx();
+	r->aConfigurations[r->SourceConfigurationIndex].CMPosition.Y = gophy.posy();
+	r->aConfigurations[r->SourceConfigurationIndex].Orientation = gophy.orientation();
+	r->aConfigurations[r->SourceConfigurationIndex].CMVelocity.X = gophy.velx();
+	r->aConfigurations[r->SourceConfigurationIndex].CMVelocity.Y = gophy.vely();
+	r->aConfigurations[r->SourceConfigurationIndex].AngularVelocity = gophy.velorientation();
+
       } 
       for (list < game_object* >::const_iterator it =
            game_objects.begin (); it != game_objects.end (); ++it)
@@ -120,7 +132,9 @@ init_scene (gl_renderer * renderer)
       //float rz = -50.0 + (rand() % 100);
       sun->set_position (rx, ry, 0.0f);
       game_objects.push_front (sun);
-
+	sun->set_id(i); 
+      //game_objects_map.insert(pair<int,game_object*>(sun->get_id(), sun)>);
+      game_objects_map[sun->get_id()] = sun;
       renderer->add_star (sun);
       //GravityController * sungrav = new GravityController(sun,  &game_objects);
       //game_controllers.push_front(sungrav);
@@ -130,7 +144,10 @@ init_scene (gl_renderer * renderer)
   rigid_body *r = world->add_body (1.0f);
   ship1->set_rigid_body (r);
   ship1->set_position (1.0f, 1.0f, 0.0f);
+  ship1->set_id(20);
   game_objects.push_front (ship1);
+  game_objects_map[ship1->get_id()] = ship1;
+
 
 
 
@@ -144,7 +161,9 @@ init_scene (gl_renderer * renderer)
   r = world->add_body (1.0f);
   ship2->set_rigid_body (r);
   ship2->set_position (-1.0f, 1.5f, -0.0f);
+  ship2->set_id(30);
   game_objects.push_front (ship2);
+  game_objects_map[ship2->get_id()] = ship2;
   GravityController *gravcontrol2 =
     new GravityController (ship2, &game_objects);
   control2 = new ClientSpaceShipController (ship2, &control_socket2);
