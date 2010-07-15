@@ -68,7 +68,7 @@ main (int argc, char **argv)
 	}
       static real LastTime = 0;
       //      real Time = LastTime  + 0.0001f;
-      real Time = LastTime + 0.01f;
+      real Time = LastTime + 0.001f;
 	usleep(5000);//microseconds
       //              printf("time  %0.4f %0.4f\n", Time, LastTime);
       world->Simulate (Time - LastTime);
