@@ -12,7 +12,9 @@ simulation_world *
 
 using namespace
   std;
-
+game_object::game_object(){
+  id =(int)this; //quick n dirty
+ }
 
 void
 game_object::set_position (float x, float y, float z)

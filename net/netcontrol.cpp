@@ -12,8 +12,9 @@ adapt(const SpaceShipController * sc,
 {
   assert (sc);
   assert (sscs);
-  assert(sc->get_go());
-  sscs->set_id (sc->get_go()->get_id());
+  //assert(sc->get_go());
+  //sscs->set_id (sc->get_go()->get_id());
+  sscs->set_id (0);
   sscs->set_toggleenginel(sc->getEngineL ());
   sscs->set_toggleenginer(sc->getEngineR ());
 }
@@ -25,8 +26,8 @@ adapt(const norbitnet_SSControllerState * sscs,
   assert (sc);
   assert (sscs);
 //  assert (sscs->id() == sc->get_go()->get_id());
-  sc->setEngineL (sscs->toggleenginel());
-  sc->setEngineR (sscs->toggleenginer());
+  sc->setEngineL(sscs->toggleenginel());
+  sc->setEngineR(sscs->toggleenginer());
 }
 
 
@@ -41,7 +42,6 @@ control_socket
 void
 ClientSpaceShipController::apply ()
 {
-//rcv data
   std::string msg_str;
   norbitnet_SSControllerState netSSCS;
   adapt(this, &netSSCS);
@@ -57,7 +57,6 @@ ClientSpaceShipController::apply ()
 ServerSpaceShipController::ServerSpaceShipController (game_object * go_, zmq::socket_t * control_socket_):SpaceShipController
   (go),control_socket
 (control_socket_)
-
 {
    assert (control_socket);
 
@@ -80,9 +79,6 @@ ServerSpaceShipController::apply ()
       zmq::message_t q(str.size()+1);
       ::memcpy(q.data(), str.c_str(),str.size()+1);
       control_socket->send(q);
-
     }
   SpaceShipController::apply ();
 }
-
-

@@ -18,6 +18,7 @@ public:
 class game_object
 {
 public:
+  game_object();
   void set_rigid_body (rigid_body *);
   void set_position (float x, float y, float z);
 
@@ -31,6 +32,9 @@ public:
   float mass ();
 
   int get_id()const  {return id;}
+  void set_id(int id_){ id = id_;}
+   
+  rigid_body* physics() {return body; } ;
 
 
 private:

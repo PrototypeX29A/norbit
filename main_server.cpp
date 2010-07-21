@@ -17,7 +17,7 @@
 
 #include <iostream>
 #include <string>
-
+#include <unistd.h>
 #include <zmq.hpp>
 #include"net/norbit.pb.h"
 
@@ -46,8 +46,8 @@ SpaceShipController *control1, *control2;
 
 zmq::context_t ctx (1);
 zmq::socket_t publish_socket (ctx, ZMQ_PUB);	// publishes physics updates, gaming data
-zmq::socket_t control_socket (ctx, ZMQ_REP);    // send input to srver
-zmq::socket_t control_socket2 (ctx, ZMQ_REP);   // send input to srver
+zmq::socket_t control_socket (ctx, ZMQ_REP);	// send input to srver
+zmq::socket_t control_socket2 (ctx, ZMQ_REP);	// send input to srver
 
 int
 main (int argc, char **argv)
@@ -56,7 +56,7 @@ main (int argc, char **argv)
   control_socket.bind ("tcp://lo:5556");
   control_socket2.bind ("tcp://lo:5557");
 
-  init_scene();
+  init_scene ();
 
   int running = 1;
   do
@@ -68,22 +68,46 @@ main (int argc, char **argv)
 	}
       static real LastTime = 0;
       //      real Time = LastTime  + 0.0001f;
-      real Time = LastTime + 0.01f;
+      real Time = LastTime + 0.001f;
+	usleep(5000);//microseconds
       //              printf("time  %0.4f %0.4f\n", Time, LastTime);
       world->Simulate (Time - LastTime);
       //              world->Render();  // some debug output
       LastTime = Time;
 
-	for (list < game_object* >::const_iterator it =
-           game_objects.begin (); it != game_objects.end (); ++it)
-        {
+      for (list < game_object * >::iterator it =
+	   game_objects.begin (); it != game_objects.end (); ++it)
+	{
+	  norbitnet_GOPHY gophy;
 
-               std::string str =  "PANET 43532423423";
-                zmq::message_t q(str.size()+1);
-                ::memcpy(q.data(), str.c_str(),str.size()+1);
-                publish_socket.send(q);
 
-        }
+	  game_object *g = *it;
+	  rigid_body *r = g->physics ();
+	  gophy.set_id (g->get_id ());
+	  gophy.set_posx (r->aConfigurations[r->SourceConfigurationIndex].
+			  CMPosition.X);
+	  gophy.set_posy (r->aConfigurations[r->SourceConfigurationIndex].
+			  CMPosition.Y);
+	  gophy.set_posz (0.0f);
+	  gophy.set_orientation (r->
+				 aConfigurations[r->SourceConfigurationIndex].
+				 Orientation);
+	  gophy.set_velx (r->aConfigurations[r->SourceConfigurationIndex].
+			  CMVelocity.X);
+	  gophy.set_vely (r->aConfigurations[r->SourceConfigurationIndex].
+			  CMVelocity.Y);
+	  gophy.set_velorientation (r->
+				    aConfigurations[r->
+						    SourceConfigurationIndex].
+				    AngularVelocity);
+
+	  std::string str;
+	  gophy.SerializeToString (&str);
+	  zmq::message_t q (str.size () + 1);
+	  ::memcpy (q.data (), str.c_str (), str.size () + 1);
+	  publish_socket.send (q);
+
+	}
 
 
     }
@@ -102,6 +126,8 @@ init_scene ()
       game_object *sun = new game_object ();
       rigid_body *r = world->add_body (100.0f);
       sun->set_rigid_body (r);
+      sun->set_id (i);
+
       float rx = -50.0 + (rand () % 100);
       float ry = -50.0 + (rand () % 100);
       //float rz = -50.0 + (rand() % 100);
@@ -113,11 +139,13 @@ init_scene ()
   rigid_body *r = world->add_body (1.0f);
   ship1->set_rigid_body (r);
   ship1->set_position (1.0f, 1.0f, 0.0f);
+  ship1->set_id (20);
+
   game_objects.push_front (ship1);
 
   GravityController *gravcontrol1 =
     new GravityController (ship1, &game_objects);
-  control1 = new ServerSpaceShipController(ship1,&control_socket);
+  control1 = new ServerSpaceShipController (ship1, &control_socket);
   game_controllers.push_front (gravcontrol1);
   game_controllers.push_front (control1);
 
@@ -125,10 +153,12 @@ init_scene ()
   r = world->add_body (1.0f);
   ship2->set_rigid_body (r);
   ship2->set_position (-1.0f, 1.5f, -0.0f);
+  ship2->set_id (30);
+
   game_objects.push_front (ship2);
   GravityController *gravcontrol2 =
     new GravityController (ship2, &game_objects);
-  control2 = new ServerSpaceShipController (ship2,&control_socket2);
+  control2 = new ServerSpaceShipController (ship2, &control_socket2);
   game_controllers.push_front (gravcontrol2);
   game_controllers.push_front (control2);
 }

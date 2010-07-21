@@ -4,8 +4,10 @@ message norbitnet_GOPHY{
   required float posx=3;
   required float posy=4;
   required float posz=5;
-  required float velx=6;
-  required float vely=7;
+  required float orientation=6;
+  required float velx=7;
+  required float vely=8;
+  required float velorientation=9;
 }
 
 
