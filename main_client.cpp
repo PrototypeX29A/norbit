@@ -32,7 +32,6 @@ extern "C"
 {
 #include <stdlib.h>
 #include <math.h>
-//#include "extra.h"
 #include "physics.h"
 }
 
