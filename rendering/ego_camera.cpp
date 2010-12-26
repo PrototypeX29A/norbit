@@ -18,7 +18,6 @@ ego_camera::ego_camera(game_object *go, float x, float y, float z)
 
 void ego_camera::apply_rotation()
 {
-	//glRotatef(180.0f, 0.0, 1.0f, 0.0f);
 	glRotatef(-90.0f, 1.0f, 0.0f, 0.0f);
 	glRotatef(-go->orientation(), 0.0f,0.0f,1.0f);
 }

@@ -17,6 +17,7 @@
 #include "sphere_shape.h"
 #include "../control.h"
 #include "../main.h"
+#include "../units.h"
 
 extern "C" {
 #include <stdlib.h>
@@ -28,6 +29,8 @@ extern "C" {
 #include "../physics.h"
 }
 
+#define SHIPSCALE 0.1 
+
 gl_renderer::gl_renderer() {
 	drawables = new list<gl_drawable*>();
 }
@@ -35,7 +38,7 @@ gl_renderer::gl_renderer() {
 void gl_renderer::add_ship(game_object *go, int cam)
 {
 	drawables->push_front(new gl_drawable(go, ship_shape));
-	game_camera[cam] = new ego_camera(go, 0.0f, -0.4f, -0.15f);
+	game_camera[cam] = new ego_camera(go, 0.0f, -0.4f * SHIPSCALE, -0.15f * SHIPSCALE);
 
 }
 
@@ -126,9 +129,8 @@ void gl_renderer::init()
 	glEnable(GL_LIGHT1);
 	glEnable(GL_LIGHT2);
 
-	ship_shape = new obj_shape(new string("ptr_mk1.obj"));
-	star_shape = new sphere_shape(5.0f);
-
+	ship_shape = new obj_shape(new string("ptr_mk1.obj"), SHIPSCALE); 
+	star_shape = new sphere_shape(1392000.0 * KM);	
 	background_stars = new skybox();
 	background_stars->init(200.0f);
 

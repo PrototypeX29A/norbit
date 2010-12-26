@@ -17,7 +17,7 @@ obj_shape::~obj_shape()
 	free(Faces);
 }
 
-obj_shape::obj_shape(string *name) 
+obj_shape::obj_shape(string *name, double scale) 
 {
 	char *cname = (char*) malloc(200);
 	strcpy (cname, name->c_str()); 
@@ -26,6 +26,7 @@ obj_shape::obj_shape(string *name)
 		printf("Cannot load the object!\n");
 	}
 	set_object(object);
+	this->scale = scale;
 }
 
 
@@ -44,7 +45,8 @@ void obj_shape::draw()
 	int nf, i;
 	Face *face;
 	Point *n, *t, *v;
-	
+
+	glScaled(scale, scale, scale);
 	glBindTexture(GL_TEXTURE_2D, TexId);
 	glBegin(GL_TRIANGLES);
 	for(nf=0; nf < nFaces; nf++) {
@@ -59,5 +61,6 @@ void obj_shape::draw()
 			glVertex3f(v->x, v->y, v->z);
 		}
 	}
+	glScaled(1.0/scale, 1.0/scale, 1.0/scale);	
 	glEnd();
 }

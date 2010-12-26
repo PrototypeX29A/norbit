@@ -18,9 +18,9 @@ void gl_drawable::draw()
 {
 	glPushMatrix();
 	glTranslatef(-go->posx(),-go->posy(),-go->posz());
-	glRotatef(go->orientation(), 0.0f,0.0f,1.0f);
-	glRotatef(90,1.0f,0.0f,0.0f);
-	glScalef(0.2f, 0.2f, 0.2f);
+	glRotated(go->orientation(), 0.0,0.0,1.0);
+	glRotated(90,1.0,0.0,0.0);
+	glScaled(0.2, 0.2, 0.2);
 	sh->draw();
 	glPopMatrix();
 }

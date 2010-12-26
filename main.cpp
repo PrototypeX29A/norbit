@@ -23,6 +23,7 @@
 #include "rendering/sphere_shape.h"
 #include "control.h"
 #include "main.h"
+#include "units.h"
 
 extern "C" {
 #include <stdlib.h>
@@ -32,7 +33,6 @@ extern "C" {
 }
 
 using namespace std;
-
 
 void init_sdl(SDL_Surface **screen, int bpp, int flags, int width, int height);
 void init_scene(gl_renderer *renderer);
@@ -68,34 +68,31 @@ int main(int argc, char **argv)
 	renderer->stop();
 }
 
+
 void init_scene(gl_renderer *renderer)
 {
 	/* ----- Init scene --------------- */
 
 		world = new simulation_world();
 		game_object::set_simulation_world(world);
-		for(int i=0; i<10;i++){
-			game_object* sun = new game_object();
-			rigid_body * r = world->add_body(100.0f);
-			sun->set_rigid_body(r);
-			float rx = -50.0 + (rand() % 100);
-			float ry = -50.0 + (rand() % 100);
-			//float rz = -50.0 + (rand() % 100);
-			sun->set_position( rx, ry, 0.0f);
-			game_objects.push_front(sun);
+		game_object* sun = new game_object();
+		rigid_body * r = world->add_body(100.0f);
+		sun->set_rigid_body(r);
+		//float rz = -50.0 + (rand() % 100);
+		sun->set_position(0.0f, 0.0f, 0.0f);
+		game_objects.push_front(sun);
 
-			renderer->add_star(sun);
-			//GravityController * sungrav = new GravityController(sun,  &game_objects);
-			//game_controllers.push_front(sungrav);
-		}
+		renderer->add_star(sun);
+		//GravityController * sungrav = new GravityController(sun,  &game_objects);
+		//game_controllers.push_front(sungrav);
 
 		ship1 = new game_object();
-		rigid_body * r = world->add_body( 1.0f );
+		r = world->add_body( 1.0f );
 		ship1->set_rigid_body(r);
 		ship1->set_position(1.0f, 1.0f, 0.0f);
 		game_objects.push_front(ship1);
 
-
+		printf("Foo\n");
 
 		GravityController * gravcontrol1 = new GravityController(ship1,  &game_objects);
 		control1 = new SpaceShipController(ship1);
@@ -112,6 +109,4 @@ void init_scene(gl_renderer *renderer)
 		game_controllers.push_front(gravcontrol2);
 		game_controllers.push_front(control2);
 }
-
-
 

@@ -7,10 +7,9 @@ class obj_shape : public shape
 {
 public:
 	~obj_shape();
-	obj_shape(string *name);
+	obj_shape(string *name, double scale);
 	virtual void draw();
-	void set_object(Object *object);
-		
+	void set_object(Object *object);		
 private:
 	Object *object;
 	GLuint TexId;
@@ -20,4 +19,5 @@ private:
 	Point *Vertices;       /* Array of vertex coordinates */
 	Point *TexCoords;     /* Array of texture coordinates */
 	Point *Normals;       /* Array of normal vectors */
+	double scale; 
 };
